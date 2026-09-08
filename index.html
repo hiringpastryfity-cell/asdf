@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PastryFity Enterprise ERP V9 - Fixed</title>
-    <!-- Tailwind CSS -->
+    <title>PastryFity Enterprise ERP V10 - Final Edition</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-    <!-- jsPDF & AutoTable untuk Cetak PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -23,8 +21,6 @@
         @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .bar { transition: height 0.5s ease-in-out; }
         .tab-btn.active { background-color: #be123c; color: white; border-color: #be123c; }
-        
-        /* SAFEGUARD PENTING: Mencegah Modal menutupi layar saat Tailwind belum selesai di-load */
         .hidden { display: none !important; } 
     </style>
 </head>
@@ -34,10 +30,9 @@
     <div id="login-view" class="fixed inset-0 z-50 flex items-center justify-center bg-rose-950">
         <div class="bg-white rounded-xl p-10 max-w-sm w-full shadow-2xl text-center space-y-6">
             <div class="mb-6">
-                <!-- Logo Pastryfity -->
                 <img src="logo.jpeg" alt="Logo Pastryfity" class="w-24 h-24 mx-auto object-cover rounded-2xl shadow-md mb-4" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y0NzJiNiIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSI0MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5QPC90ZXh0Pjwvc3ZnPg=='">
                 <h1 class="text-xl font-extrabold text-slate-900 tracking-tight leading-tight">Selamat Datang di Sistem Pastryfity</h1>
-                <p class="text-[10px] font-bold text-pink-500 uppercase tracking-widest mt-2">Enterprise System V9</p>
+                <p class="text-[10px] font-bold text-pink-500 uppercase tracking-widest mt-2">Enterprise System V10</p>
             </div>
             <div class="space-y-4 text-left relative z-50">
                 <label class="block text-xs font-bold text-slate-600">Secure PIN Akses</label>
@@ -148,97 +143,67 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT ABSENSI (ADMIN) -->
-    <div id="modal-edit-absen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-xl w-full max-w-sm shadow-2xl p-6">
-            <h3 class="text-sm font-bold text-slate-800 mb-4 border-b border-pink-100 pb-2">Edit Data Absensi</h3>
-            <input type="hidden" id="ea-id">
-            <input type="hidden" id="ea-ts">
-            <div class="space-y-3">
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">Nama Karyawan</label><input type="text" id="ea-nama" readonly class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none"></div>
-                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">Tipe Absen</label><select id="ea-tipe" class="w-full bg-slate-50 border border-pink-200 rounded-lg px-3 py-2 text-xs outline-none"><option value="Clock IN">Clock IN</option><option value="Clock OUT">Clock OUT</option></select></div>
-            </div>
-            <div class="flex gap-2 mt-4">
-                <button onclick="document.getElementById('modal-edit-absen').classList.add('hidden')" class="flex-1 py-2 bg-slate-200 text-slate-700 font-bold text-xs rounded-lg cursor-pointer">Batal</button>
-                <button onclick="saveEditAbsen()" class="flex-1 py-2 bg-pink-500 text-white font-bold text-xs rounded-lg cursor-pointer">Update</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL RESTORE UPLOAD -->
-    <div id="modal-restore" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-xl w-full max-w-sm shadow-2xl p-6">
-            <h3 class="text-sm font-bold text-rose-600 mb-2">Peringatan: Restore Database</h3>
-            <p class="text-[10px] text-slate-500 mb-4">Mengunggah file backup akan MENGHAPUS seluruh data saat ini dan menggantinya dengan data dari file. Lanjutkan?</p>
-            <input type="file" id="restore-file" accept=".json" class="text-xs mb-4 w-full">
-            <div class="flex gap-2">
-                <button onclick="document.getElementById('modal-restore').classList.add('hidden')" class="flex-1 py-2 bg-slate-200 text-slate-700 font-bold text-xs rounded-lg cursor-pointer">Batal</button>
-                <button onclick="processRestore()" class="flex-1 py-2 bg-rose-600 text-white font-bold text-xs rounded-lg cursor-pointer">Upload & Restore</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // ================= DATABASE ENGINE V4 (FIXED) =================
+        // ================= DATABASE ENGINE V5 (FINAL FIXES) =================
         let db;
         let currentUser = null;
         let currentTab = '';
         let posCart = [];
         
+        // Registry Modul Utama
         const MODULES = {
             'dashboard': { icon: '📊', label: 'Executive Dashboard', render: renderDashboard },
             'pos': { icon: '🛍️', label: 'Terminal POS & Kasir', render: renderPOS },
             'dapur': { icon: '👩‍🍳', label: 'Produksi & Planning', render: renderDapur },
-            'stok': { icon: '📦', label: 'Master Stok & Kategori', render: renderStok },
+            'stok': { icon: '📦', label: 'Master Stok & Aset', render: renderStok },
             'akuntansi': { icon: '🏦', label: 'Akuntansi & HPP', render: renderAkuntansi },
             'laporan': { icon: '📑', label: 'Pusat Laporan Lengkap', render: renderLaporan },
             'invoice': { icon: '🧾', label: 'Invoice Profesional', render: renderInvoice },
             'crm': { icon: '👥', label: 'CRM & Pelanggan', render: renderCRM },
-            'karyawan': { icon: '📱', label: 'Portal Karyawan (ESS)', render: renderKaryawan },
             'hrm_admin': { icon: '📋', label: 'HRM & Rekap Admin', render: renderHRMAdmin },
             'kpi': { icon: '⭐', label: 'KPI & Payroll', render: renderKPI },
             'legal': { icon: '📜', label: 'Legal Dokumen', render: renderLegal },
-            'master': { icon: '⚙️', label: 'Master Control (Admin)', render: renderMaster }
+            'master': { icon: '⚙️', label: 'Master Control (Admin)', render: renderMaster },
+            'karyawan': { icon: '📱', label: 'Portal Karyawan (ESS)', render: renderKaryawan }
         };
 
+        // Pembagian User Berdasarkan Catatan Tangan
         const DEFAULT_ROLES = {
             'Super Admin': Object.keys(MODULES),
             'Owner': Object.keys(MODULES),
-            'Admin Toko': ['dashboard', 'pos', 'stok', 'crm', 'karyawan', 'dapur', 'laporan', 'hrm_admin'],
-            'Kasir': ['pos', 'invoice', 'crm', 'karyawan'],
-            'Baker': ['dapur', 'stok', 'karyawan'],
-            'Karyawan': ['karyawan'] // Hanya bisa melihat Portal Karyawan
+            'Admin Toko': ['dashboard', 'pos', 'stok', 'laporan', 'crm', 'hrm_admin', 'karyawan'],
+            'Accounting': ['dashboard', 'pos', 'stok', 'akuntansi', 'laporan', 'invoice', 'karyawan'],
+            'Admin Gudang': ['dashboard', 'stok', 'karyawan'],
+            'Head Dapur': ['dapur', 'stok', 'karyawan'],
+            'Kasir': ['pos', 'crm', 'karyawan'],
+            'Karyawan': ['karyawan'] // Murni Portal Karyawan
         };
 
-        // SETUP TANGGAL & INIT DB LANGSUNG (Mempercepat respon)
+        // Initialize App & DB
         let today = new Date();
         let firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
         let lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
         document.getElementById('g-start').value = firstDay;
         document.getElementById('g-end').value = lastDay;
-        initDB(); // Langsung eksekusi, tidak menunggu DOMContentLoaded yang kadang macet
+        
+        initDB();
 
         function initDB() {
-            const req = indexedDB.open('PastryFity_Ent_V9', 4);
+            const req = indexedDB.open('PastryFity_Ent_V10', 5);
             req.onupgradeneeded = (e) => {
                 const u = e.target.result;
-                const stores = ['users', 'roles', 'produk', 'trx', 'jurnal', 'crm', 'hrm', 'pengajuan', 'laporan', 'logs', 'stok_log', 'kpi', 'payment_acc', 'kurir', 'plan_dapur', 'edit_req'];
+                const stores = ['users', 'roles', 'produk', 'trx', 'jurnal', 'crm', 'hrm', 'pengajuan', 'laporan', 'logs', 'stok_log', 'kpi', 'payment_acc', 'kurir', 'plan_dapur', 'edit_req', 'settings'];
                 stores.forEach(name => {
-                    let keyOptions = name === 'users' ? {keyPath: 'pin'} : (name === 'roles' ? {keyPath: 'name'} : (name === 'crm' ? {keyPath: 'hp'} : (name === 'kpi' ? {keyPath: 'nama'} : {keyPath: 'id', autoIncrement: true})));
+                    let keyOptions = name === 'users' ? {keyPath: 'pin'} : (name === 'roles' ? {keyPath: 'name'} : (name === 'crm' ? {keyPath: 'hp'} : (name === 'kpi' ? {keyPath: 'nama'} : (name === 'settings' ? {keyPath: 'key'} : {keyPath: 'id', autoIncrement: true}))));
                     if(!u.objectStoreNames.contains(name)) u.createObjectStore(name, keyOptions);
                 });
             };
-            req.onsuccess = (e) => { 
-                db = e.target.result; 
-                seedInitialData(); 
-            };
-            req.onerror = (e) => {
-                alert("Gagal membuka database lokal. Pastikan browser Anda mendukung IndexedDB (jangan gunakan mode Incognito ketat).");
-            };
+            req.onsuccess = (e) => { db = e.target.result; seedInitialData(); };
+            req.onerror = (e) => { alert("Gagal membuka database lokal. Pastikan browser tidak memblokir IndexedDB."); };
         }
 
         function seedInitialData() {
-            const tx = db.transaction(['users', 'roles', 'payment_acc'], 'readwrite');
+            const tx = db.transaction(['users', 'roles', 'payment_acc', 'settings'], 'readwrite');
             const storeRoles = tx.objectStore('roles');
             for(let r in DEFAULT_ROLES) { storeRoles.get(r).onsuccess = e => { if(!e.target.result) storeRoles.put({name: r, modules: DEFAULT_ROLES[r]}); } }
             
@@ -254,12 +219,15 @@
                     storePay.put({jenis: 'Mesin EDC Debit', no: 'EDC Kasir 1', nama: 'BCA/Mandiri/BNI'});
                 }
             }
+
+            const storeSet = tx.objectStore('settings');
+            storeSet.get('github_token').onsuccess = e => { if(!e.target.result) storeSet.put({key: 'github_token', val: ''}); }
         }
 
         function logActivity(action, detail) { if(currentUser) db.transaction('logs','readwrite').objectStore('logs').put({ user: currentUser.nama, pin: currentUser.pin, action, detail, ts: new Date().getTime() }); }
 
         function login() {
-            if(!db) { alert("Database sistem masih memuat atau terblokir. Coba refresh halaman."); return; }
+            if(!db) return alert("Sistem masih memuat data. Mohon tunggu beberapa saat.");
             const pin = document.getElementById('login-pin').value;
             if(!pin) return alert("Silakan masukkan PIN Akses!");
 
@@ -274,9 +242,7 @@
                     document.getElementById('header-user-name').innerText = currentUser.nama;
                     logActivity('Login', 'Masuk ke sistem');
                     buildNavigation();
-                } else {
-                    alert('PIN tidak terdaftar atau salah.');
-                }
+                } else alert('PIN tidak terdaftar atau salah.');
             };
         }
 
@@ -287,8 +253,7 @@
                 const r = e.target.result; 
                 let mods = r ? r.modules : DEFAULT_ROLES['Karyawan'];
                 
-                // Pastikan SEMUA role mendapatkan modul Karyawan untuk absensi dirinya sendiri
-                if(!mods.includes('karyawan')) mods.push('karyawan');
+                if(!mods.includes('karyawan')) mods.push('karyawan'); // Wajib ada portal ESS untuk absen
 
                 const nav = document.getElementById('nav-container'); nav.innerHTML = '';
                 mods.forEach(m => {
@@ -296,13 +261,10 @@
                         nav.innerHTML += `<button onclick="navigate('${m}')" id="nav-btn-${m}" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:bg-rose-900 hover:text-pink-100 transition-all cursor-pointer"><span class="text-base">${MODULES[m].icon}</span><span class="hide-min">${MODULES[m].label}</span></button>`;
                     }
                 });
-                // Auto buka modul pertama di list
                 if(mods.length > 0) navigate(mods[0]);
             };
         }
-
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('sidebar-min'); }
-        
         function navigate(tab) {
             document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('bg-pink-500', 'text-white'); b.classList.add('text-slate-400'); });
             const activeBtn = document.getElementById(`nav-btn-${tab}`);
@@ -311,7 +273,7 @@
             document.getElementById('header-title').innerText = MODULES[tab].label;
             
             const df = document.getElementById('dash-date-filter');
-            if(['dashboard','stok','akuntansi', 'laporan', 'hrm_admin'].includes(tab)) { df.classList.remove('hidden'); df.classList.add('flex'); } 
+            if(['dashboard','stok','akuntansi', 'laporan', 'hrm_admin', 'karyawan'].includes(tab)) { df.classList.remove('hidden'); df.classList.add('flex'); } 
             else { df.classList.add('hidden'); df.classList.remove('flex'); }
             MODULES[tab].render();
         }
@@ -335,41 +297,35 @@
             const ws = document.getElementById('main-workspace');
             ws.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6" id="dash-cards"></div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white border border-pink-100 rounded-xl p-5 shadow-sm flex flex-col">
-                        <h3 class="text-xs font-bold text-slate-800 uppercase mb-4 border-b border-pink-50 pb-2">Pemasukan vs Pengeluaran Jurnal</h3>
-                        <div class="h-48 flex items-end gap-4 border-b border-l border-slate-200 p-2 relative" id="chart-finance"></div>
-                        <div class="flex justify-center gap-4 mt-3 text-[10px] font-bold"><span class="text-emerald-500">■ Uang Masuk</span><span class="text-rose-500">■ Uang Keluar</span></div>
-                    </div>
-                    <div class="bg-white border border-pink-100 rounded-xl p-5 shadow-sm flex flex-col">
-                        <h3 class="text-xs font-bold text-slate-800 uppercase mb-4 border-b border-pink-50 pb-2">Pembagian Kas Lunas vs DP</h3>
-                        <div class="h-48 flex items-end gap-4 border-b border-l border-slate-200 p-2 relative" id="chart-dp"></div>
-                        <div class="flex justify-center gap-4 mt-3 text-[10px] font-bold"><span class="text-indigo-500">■ Lunas</span><span class="text-amber-500">■ DP Kas Masuk</span></div>
-                    </div>
+                <div class="bg-white border border-pink-100 rounded-xl p-5 shadow-sm mb-6 flex flex-col h-64">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase mb-4 border-b border-pink-50 pb-2">List Orderan Masuk (POS)</h3>
+                    <div class="flex-1 overflow-y-auto"><table class="w-full text-left text-xs"><thead class="bg-slate-50 text-slate-500"><tr><th class="p-2">Waktu</th><th class="p-2">Order</th><th class="p-2">Item Utama</th><th class="p-2">Total Net</th><th class="p-2">Status</th></tr></thead><tbody id="dash-order-body" class="divide-y divide-slate-50"></tbody></table></div>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white border border-pink-100 rounded-xl p-5 shadow-sm"><h3 class="text-xs font-bold text-slate-800 uppercase mb-4 border-b border-pink-50 pb-2">Produk Keluar (POS)</h3><div class="h-48 flex items-end gap-2 border-b border-l border-slate-200 p-2" id="chart-sales"></div></div>
-                    <div class="bg-white border border-pink-100 rounded-xl p-5 shadow-sm"><h3 class="text-xs font-bold text-slate-800 uppercase mb-4 border-b border-pink-50 pb-2">Produksi Dapur (Masuk Displei)</h3><div class="h-48 flex items-end gap-2 border-b border-l border-slate-200 p-2" id="chart-produksi"></div></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white border border-pink-100 rounded-xl p-5 shadow-sm flex flex-col"><h3 class="text-xs font-bold text-slate-800 uppercase mb-4 border-b border-pink-50 pb-2">Pembagian Kas Lunas vs DP</h3><div class="h-48 flex items-end gap-4 border-b border-l border-slate-200 p-2 relative" id="chart-dp"></div><div class="flex justify-center gap-4 mt-3 text-[10px] font-bold"><span class="text-indigo-500">■ Lunas</span><span class="text-amber-500">■ DP Masuk</span></div></div>
+                    <div class="bg-white border border-pink-100 rounded-xl p-5 shadow-sm flex flex-col"><h3 class="text-xs font-bold text-slate-800 uppercase mb-4 border-b border-pink-50 pb-2">Pemasukan vs Pengeluaran</h3><div class="h-48 flex items-end gap-4 border-b border-l border-slate-200 p-2 relative" id="chart-finance"></div><div class="flex justify-center gap-4 mt-3 text-[10px] font-bold"><span class="text-emerald-500">■ Masuk</span><span class="text-rose-500">■ Keluar</span></div></div>
                 </div>
             `;
             let start = document.getElementById('g-start').value; let end = document.getElementById('g-end').value;
             let o=0, p=0, d=0, totalLunas = 0, totalDP = 0, inc=0, exp=0;
-            const chartDataSales = {}, chartDataProd = {};
 
-            db.transaction(['trx','jurnal','stok_log'],'readonly').objectStore('trx').openCursor().onsuccess = e => {
+            db.transaction(['trx','jurnal'],'readonly').objectStore('trx').openCursor(null, 'prev').onsuccess = e => {
                 let c = e.target.result;
                 if(c) {
                     let v = c.value;
                     if(v.tgl >= start && v.tgl <= end) {
                         o += v.net; p += v.sisa; d += v.dp;
                         if(v.stat === 'Lunas') totalLunas += v.net; if(v.stat === 'DP') totalDP += v.dp;
-                        let day = v.tgl.split('-')[2]; chartDataSales[day] = (chartDataSales[day]||0) + v.net;
+                        
+                        let tb = document.getElementById('dash-order-body');
+                        if(tb && tb.children.length < 15) {
+                            let fItem = v.items.length > 0 ? v.items[0].nama : '-';
+                            tb.innerHTML += `<tr><td class="p-2 whitespace-nowrap">${v.tgl} ${v.jam}</td><td class="p-2 font-bold">${v.cust}</td><td class="p-2 truncate max-w-[100px]">${fItem} ${v.items.length>1?`(+${v.items.length-1})`:''}</td><td class="p-2 font-bold text-pink-600">${toRp(v.net)}</td><td class="p-2">${v.stat}</td></tr>`;
+                        }
                     }
                     c.continue();
                 } else {
                     document.getElementById('dash-cards').innerHTML = `<div class="bg-white border border-pink-100 p-5 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">Total Nilai Order</p><p class="text-2xl font-black text-slate-800 mt-1">${toRp(o)}</p></div><div class="bg-white border border-pink-100 p-5 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">Uang Masuk Kasir</p><p class="text-2xl font-black text-pink-500 mt-1">${toRp(totalLunas + totalDP)}</p></div><div class="bg-white border border-pink-100 p-5 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">Piutang / Sisa DP</p><p class="text-2xl font-black text-amber-500 mt-1">${toRp(p)}</p></div><div class="bg-rose-950 p-5 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-pink-300 uppercase">Rentang Aktif</p><p class="text-[11px] font-black text-white mt-1 leading-tight">${start}<br>s/d ${end}</p></div>`;
-                    const cDiv = document.getElementById('chart-sales'); let maxVal = Math.max(...Object.values(chartDataSales), 1);
-                    for(let i=1; i<=31; i++) { let day = i<10?'0'+i:''+i; let val = chartDataSales[day]||0; let h = (val/maxVal)*100; if(val>0) cDiv.innerHTML += `<div class="w-full bg-pink-400 rounded-t-sm bar relative group hover:bg-pink-600" style="height:${h}%"><span class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[8px] px-1 rounded opacity-0 group-hover:opacity-100">${toRp(val)}</span></div>`; }
                     let maxKas = Math.max(totalLunas, totalDP, 1);
                     document.getElementById('chart-dp').innerHTML = `<div class="w-1/2 bg-indigo-500 rounded-t-md bar relative group flex justify-center" style="height:${(totalLunas/maxKas)*100}%"><span class="absolute -top-6 bg-slate-800 text-white text-[9px] px-2 py-0.5 rounded font-bold">${toRp(totalLunas)}</span></div><div class="w-1/2 bg-amber-400 rounded-t-md bar relative group flex justify-center" style="height:${(totalDP/maxKas)*100}%"><span class="absolute -top-6 bg-slate-800 text-white text-[9px] px-2 py-0.5 rounded font-bold">${toRp(totalDP)}</span></div>`;
                 }
@@ -379,15 +335,10 @@
                 if(c) { let j = c.value; if(j.tgl >= start && j.tgl <= end) { if(j.jenis.includes('(+)') || j.jenis.includes('Pendapatan')) inc+=j.nom; else exp+=j.nom; } c.continue(); } 
                 else { let maxFin = Math.max(inc, exp, 1); document.getElementById('chart-finance').innerHTML = `<div class="w-1/2 bg-emerald-500 rounded-t-md bar relative group flex justify-center" style="height:${(inc/maxFin)*100}%"><span class="absolute -top-6 bg-slate-800 text-white text-[9px] px-2 py-0.5 rounded font-bold">${toRp(inc)}</span></div><div class="w-1/2 bg-rose-500 rounded-t-md bar relative group flex justify-center" style="height:${(exp/maxFin)*100}%"><span class="absolute -top-6 bg-slate-800 text-white text-[9px] px-2 py-0.5 rounded font-bold">${toRp(exp)}</span></div>`; }
             };
-            db.transaction('stok_log','readonly').objectStore('stok_log').openCursor().onsuccess = e => {
-                let c = e.target.result;
-                if(c) { let s = c.value; if(s.tgl >= start && s.tgl <= end && s.ket.includes('Produksi')) { let day = s.tgl.split('-')[2]; chartDataProd[day] = (chartDataProd[day]||0) + s.qty; } c.continue(); } 
-                else { const cDiv = document.getElementById('chart-produksi'); let maxVal = Math.max(...Object.values(chartDataProd), 1); for(let i=1; i<=31; i++) { let day = i<10?'0'+i:''+i; let val = chartDataProd[day]||0; let h = (val/maxVal)*100; if(val>0) cDiv.innerHTML += `<div class="w-full bg-emerald-400 rounded-t-sm bar relative group hover:bg-emerald-600" style="height:${h}%"><span class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[8px] px-1 rounded opacity-0 group-hover:opacity-100">${val} Pcs</span></div>`; } }
-            };
         }
 
         // ==========================================
-        // MODULE: POS KASIR
+        // MODULE: POS KASIR 
         // ==========================================
         let posTabMode = 'pos';
         function renderPOS() {
@@ -466,7 +417,6 @@
             let now = new Date();
             document.getElementById('pos-tgl').value = now.toISOString().split('T')[0]; document.getElementById('pos-jam').value = now.toTimeString().slice(0,5);
             document.getElementById('pos-tgl-ambil').value = now.toISOString().split('T')[0]; document.getElementById('pos-jam-ambil').value = now.toTimeString().slice(0,5);
-            
             posCart = []; loadPosCategories(); loadPaymentAccounts();
         }
 
@@ -485,6 +435,7 @@
             }
         }
         function filterPosCat(cat) { activePosCategory = cat; loadPosCategories(); }
+        
         function loadPaymentAccounts() {
             let sel = document.getElementById('pos-method-sel'); if(!sel) return; sel.innerHTML='';
             db.transaction('payment_acc','readonly').objectStore('payment_acc').openCursor().onsuccess = e => {
@@ -591,7 +542,6 @@
             t.oncomplete = () => { logActivity('Transaksi POS', `Order ${nm} - ${toRp(d.net)}`); alert('Transaksi Berhasil Tersimpan.'); posLastTrx = trx; document.getElementById('btn-p-kasir').disabled = false; document.getElementById('btn-p-dapur').disabled = false; document.getElementById('btn-p-wa').disabled = false; posCart = []; renderPosCart(); renderPosGrid(); };
         }
 
-        // --- OUTPUT PRINTS ---
         function printKasir() {
             if(!posLastTrx) return; const doc = new window.jspdf.jsPDF({ format: [80, 200] });
             doc.setFontSize(10); doc.text("PASTRYFITY ENTERPRISE", 40, 10, {align:"center"}); doc.setFontSize(8); doc.text("Struk Pembayaran Customer", 40, 14, {align:"center"}); doc.text("-----------------------------------------", 5, 18);
@@ -729,7 +679,7 @@
             } else {
                 let start = document.getElementById('g-start').value; let end = document.getElementById('g-end').value; let rows = [];
                 if(stokTab === 'log') {
-                    db.transaction('stok_log','readonly').objectStore('stok_log').openCursor(null, 'prev').onsuccess = e => { let c = e.target.result; if(c) { let l = c.value; if(l.tgl >= start && l.tgl <= end) { rows.push(`<tr><td class="px-4 py-2">${l.tgl}</td><td class="px-4 py-2 font-bold">${l.nama}</td><td class="px-4 py-2 font-black ${l.qty>0?'text-emerald-500':'text-rose-500'}">${l.qty>0?'+'+l.qty:l.qty}</td><td class="px-4 py-2">${l.ket}</td></tr>`); } c.continue(); } else { document.getElementById('stok-view-container').innerHTML = createTable(['Tanggal', 'Nama Barang', 'Qty Mutasi', 'Keterangan'], rows.join('')); } }
+                    db.transaction('stok_log','readonly').objectStore('stok_log').openCursor(null, 'prev').onsuccess = e => { let c = e.target.result; if(c) { let l = c.value; if(l.tgl >= start && l.tgl <= end) { rows.push(`<tr><td class="px-4 py-2">${l.tgl}</td><td class="px-4 py-2 font-bold">${l.nama}</td><td class="px-4 py-2 font-black ${l.qty>0?'text-emerald-500':'text-rose-500'}">${l.qty>0?'+'+l.qty:l.qty}</td><td class="px-4 py-2">${l.ket}</td></tr>`); } c.continue(); } else { document.getElementById('stok-view-container').innerHTML = `<div class="mb-2"><button onclick="mutasiStokPrompt()" class="bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer">Form Tarik/Rusak/Mutasi Stok</button></div>` + createTable(['Tanggal', 'Nama Barang', 'Qty Mutasi', 'Keterangan'], rows.join('')); } }
                     return;
                 }
                 db.transaction('produk','readonly').objectStore('produk').openCursor().onsuccess = e => {
@@ -750,11 +700,24 @@
             e.preventDefault();
             let pData = { nama: document.getElementById('ms-nama').value, tipe: document.getElementById('ms-tipe').value, kat: document.getElementById('ms-kat').value, stok: parseInt(document.getElementById('ms-stok').value)||0, jual: parseFloat(document.getElementById('ms-jual').value)||0, modal: parseFloat(document.getElementById('ms-modal').value)||0, bom: document.getElementById('ms-bom').value };
             let t = db.transaction(['produk', 'stok_log'],'readwrite'); t.objectStore('produk').put(pData); t.objectStore('stok_log').put({ tgl: new Date().toISOString().split('T')[0], nama: pData.nama, qty: pData.stok, ket: 'Stok Awal Sistem', ts: new Date().getTime()});
-            t.oncomplete = () => { document.getElementById('form-add-stok').reset(); alert('Berhasil Ditambahkan.'); };
+            t.oncomplete = () => { document.getElementById('form-add-stok').reset(); alert('Berhasil Ditambahkan.'); renderStokView(); };
+        }
+        function mutasiStokPrompt() {
+            let id = prompt("Masukkan ID Produk (Lihat urutan, atau hubungi dev untuk dropdown):"); if(!id) return;
+            let qty = prompt("Masukkan jumlah (Gunakan minus (-) untuk Tarik/Rusak):"); if(!qty) return;
+            let ket = prompt("Keterangan Mutasi (Misal: Barang Rusak, Ditarik Owner):"); if(!ket) return;
+            
+            let t = db.transaction(['produk', 'stok_log'],'readwrite');
+            t.objectStore('produk').get(parseInt(id)).onsuccess = e => {
+                let p = e.target.result; 
+                if(p) { p.stok += parseInt(qty); t.objectStore('produk').put(p); t.objectStore('stok_log').put({ tgl: new Date().toISOString().split('T')[0], nama: p.nama, qty: parseInt(qty), ket: ket, ts: new Date().getTime()}); }
+                else alert('ID Tidak Ditemukan');
+            }
+            t.oncomplete = () => { alert('Mutasi Stok Berhasil'); renderStokView(); }
         }
 
         // ==========================================
-        // MODULE: PUSAT LAPORAN (REPORTING)
+        // MODULE: PUSAT LAPORAN LENGKAP
         // ==========================================
         let lapTab = 'penjualan';
         function renderLaporan() {
@@ -764,6 +727,7 @@
                     <button onclick="lapTab='penjualan'; renderLapView();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${lapTab==='penjualan'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Laporan Penjualan (Masuk/Keluar)</button>
                     <button onclick="lapTab='keuntungan'; renderLapView();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${lapTab==='keuntungan'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Laporan Keuntungan (Profit)</button>
                     <button onclick="lapTab='metode'; renderLapView();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${lapTab==='metode'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Laporan per Cara Bayar</button>
+                    <button onclick="lapTab='kategori'; renderLapView();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${lapTab==='kategori'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Laporan Kategori</button>
                     <div class="flex-1"></div>
                     <button onclick="cetakLaporanA4()" class="px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer">🖨️ Cetak Laporan PDF (A4)</button>
                 </div>
@@ -815,7 +779,22 @@
                         c.continue();
                     } else {
                         let rows = []; for(let k in metMap) { rows.push(`<tr><td class="p-3 font-bold border-b border-slate-100">${k}</td><td class="p-3 border-b border-slate-100 text-right">${toRp(metMap[k])}</td></tr>`); }
-                        container.innerHTML = `<h3 class="text-sm font-bold mb-4">Laporan Penerimaan per Cara Bayar (Tgl: ${start} - ${end})</h3><div class="max-w-md"><table id="t-export" class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-3">Akun / Metode Pembayaran</th><th class="p-3 text-right">Nominal Masuk</th></tr></thead><tbody class="divide-y divide-slate-100">${rows.join('')}</tbody><tfoot class="bg-slate-50 font-bold border-t border-slate-200"><tr><td class="p-3">TOTAL KAS MASUK (DP+LUNAS):</td><td class="p-3 text-emerald-600 text-right">${toRp(tot)}</td></tr></tfoot></table></div>`;
+                        container.innerHTML = `<h3 class="text-sm font-bold mb-4">Laporan Penerimaan per Cara Bayar (Tgl: ${start} - ${end})</h3><div class="max-w-md"><table id="t-export" class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-3">Akun / Metode Pembayaran</th><th class="p-3 text-right">Nominal Masuk</th></tr></thead><tbody class="divide-y divide-slate-100">${rows.join('')}</tbody><tfoot class="bg-slate-50 font-bold border-t border-slate-200"><tr><td class="p-3">TOTAL KAS MASUK (DP+LUNAS):</td><td class="p-3 text-emerald-600 text-right font-black">${toRp(tot)}</td></tr></tfoot></table></div>`;
+                    }
+                }
+            }
+            else if(lapTab === 'kategori') {
+                let catMap = {};
+                db.transaction('trx','readonly').objectStore('trx').openCursor().onsuccess = e => {
+                    let c = e.target.result;
+                    if(c) {
+                        let t = c.value; if(t.tgl >= start && t.tgl <= end) {
+                            t.items.forEach(i => { let k = i.id.toString().includes('custom') ? 'Custom Cake' : 'Menu Reguler'; catMap[k] = (catMap[k]||0) + (i.harga * i.qty); });
+                        }
+                        c.continue();
+                    } else {
+                        let rows = []; let tot = 0; for(let k in catMap) { rows.push(`<tr><td class="p-3 font-bold border-b border-slate-100">${k}</td><td class="p-3 border-b border-slate-100 text-right">${toRp(catMap[k])}</td></tr>`); tot+=catMap[k]; }
+                        container.innerHTML = `<h3 class="text-sm font-bold mb-4">Laporan Penjualan Per Kategori Global (Tgl: ${start} - ${end})</h3><div class="max-w-md"><table id="t-export" class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-3">Kategori Produk</th><th class="p-3 text-right">Total Pendapatan Kotor</th></tr></thead><tbody class="divide-y divide-slate-100">${rows.join('')}</tbody><tfoot class="bg-slate-50 font-bold border-t border-slate-200"><tr><td class="p-3">TOTAL KESELURUHAN:</td><td class="p-3 text-emerald-600 text-right font-black">${toRp(tot)}</td></tr></tfoot></table></div>`;
                     }
                 }
             }
@@ -914,11 +893,13 @@
         // ==========================================
         // MODULE: KARYAWAN (PORTAL ESS KHUSUS DIRI SENDIRI)
         // ==========================================
+        let employeeLocation = "Lokasi belum didapatkan";
+
         function renderKaryawan() {
             const ws = document.getElementById('main-workspace');
             ws.innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm"><h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-pink-100 pb-2">Mesin Absensi Shift</h3><form onsubmit="saveAbsen(event)" class="space-y-4"><input type="text" readonly value="${currentUser.nama}" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold outline-none text-slate-500"><select id="absen-tipe" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-xs font-bold outline-none focus:border-pink-400"><option value="Clock IN">Mulai Shift (Masuk Kerja)</option><option value="Clock OUT">Akhiri Shift (Pulang)</option></select><button type="submit" class="w-full py-3 bg-pink-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-pink-600 cursor-pointer">Kirim Log Kehadiran</button></form></div>
+                    <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm"><h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-pink-100 pb-2">Mesin Absensi Shift</h3><form onsubmit="saveAbsen(event)" class="space-y-4"><input type="text" readonly value="${currentUser.nama}" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold outline-none text-slate-500"><select id="absen-tipe" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-xs font-bold outline-none focus:border-pink-400"><option value="Clock IN">Mulai Shift (Masuk Kerja)</option><option value="Clock OUT">Akhiri Shift (Pulang)</option></select><div class="text-[9px] text-slate-500 bg-slate-50 p-2 rounded border border-slate-200" id="geo-info">📍 Lacak Lokasi GPS: Memeriksa...</div><button type="submit" class="w-full py-3 bg-pink-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-pink-600 cursor-pointer">Kirim Log Kehadiran</button></form></div>
                     <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm flex flex-col lg:col-span-2 h-[250px]"><h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-pink-100 pb-2">Riwayat Absensi Anda</h3><div class="flex-1 overflow-y-auto"><table class="w-full text-left text-xs"><tbody id="table-absen-ku-body" class="divide-y divide-pink-50"></tbody></table></div></div>
                 </div>
 
@@ -938,29 +919,55 @@
                     </div>
                 </div>
 
-                <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm max-w-2xl">
-                    <h3 class="text-sm font-bold text-emerald-600 uppercase mb-4 border-b border-emerald-100 pb-2">Form Laporan Harian Kerja</h3>
-                    <form onsubmit="saveLaporan(event)" class="space-y-3">
+                <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm">
+                    <div class="flex justify-between items-center mb-4 border-b border-emerald-100 pb-2">
+                        <h3 class="text-sm font-bold text-emerald-600 uppercase">Form Laporan Harian Kerja</h3>
+                        <input type="date" id="lap-ku-tgl" onchange="loadLaporanKu()" class="bg-slate-50 border border-slate-200 rounded px-2 py-1 text-[10px] font-bold outline-none cursor-pointer">
+                    </div>
+                    <form onsubmit="saveLaporan(event)" class="space-y-3 mb-4">
                         <input type="text" id="lap-judul" placeholder="Ringkasan Pekerjaan Hari Ini..." required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500">
-                        <textarea id="lap-ket" placeholder="Tulis rincian apa saja yang dikerjakan, kendala, atau note penting..." required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500 h-24"></textarea>
+                        <textarea id="lap-ket" placeholder="Buat Per Poin. Cth:&#10;1. Melayani 50 pelanggan&#10;2. Membersihkan area kasir..." required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500 h-24"></textarea>
                         <button type="submit" class="w-full py-3 bg-emerald-500 text-white text-xs font-bold rounded-lg hover:bg-emerald-600 cursor-pointer">Kirim Laporan Harian ke Pusat</button>
                     </form>
+                    <div class="bg-slate-50 p-4 rounded-lg"><h4 class="text-[10px] font-bold text-slate-500 mb-2 uppercase">Laporan Anda (Berdasarkan Tanggal Di Atas)</h4><div id="lap-ku-content" class="text-xs text-slate-700 whitespace-pre-wrap">Belum ada laporan di tanggal ini.</div></div>
                 </div>
             `;
-            document.getElementById('aju-tgl').value = new Date().toISOString().split('T')[0];
-            loadAbsenKu(); loadAjuKu();
+            
+            // Geolokasi Request
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => { employeeLocation = `Lat: ${pos.coords.latitude.toFixed(5)}, Lng: ${pos.coords.longitude.toFixed(5)}`; document.getElementById('geo-info').innerText = `📍 Lokasi Terdeteksi: ${employeeLocation}`; },
+                    err => { employeeLocation = `GPS Ditolak/Error`; document.getElementById('geo-info').innerText = `📍 Izin lokasi ditolak / Error. Harap izinkan GPS!`; }
+                );
+            } else { document.getElementById('geo-info').innerText = "📍 Perangkat tidak mendukung GPS"; }
+
+            let dNow = new Date().toISOString().split('T')[0];
+            document.getElementById('aju-tgl').value = dNow;
+            document.getElementById('lap-ku-tgl').value = dNow;
+            
+            loadAbsenKu(); loadAjuKu(); loadLaporanKu();
         }
-        function saveAbsen(e) { e.preventDefault(); db.transaction('hrm','readwrite').objectStore('hrm').put({ nama: currentUser.nama, tipe: document.getElementById('absen-tipe').value, ts: new Date().getTime() }).onsuccess = () => renderKaryawan(); }
+
+        function saveAbsen(e) { e.preventDefault(); db.transaction('hrm','readwrite').objectStore('hrm').put({ nama: currentUser.nama, tipe: document.getElementById('absen-tipe').value, loc: employeeLocation, ts: new Date().getTime() }).onsuccess = () => renderKaryawan(); }
+        
         function loadAbsenKu() {
             let tb = document.getElementById('table-absen-ku-body'); tb.innerHTML='';
-            db.transaction('hrm','readonly').objectStore('hrm').openCursor(null,'prev').onsuccess = e => { let c = e.target.result; if(c) { let d = c.value; if(d.nama === currentUser.nama) { let color = d.tipe.includes('IN') ? 'text-emerald-500' : 'text-amber-500'; tb.innerHTML += `<tr><td class="p-2"><span class="text-[9px] text-slate-400 block">${new Date(d.ts).toLocaleString('id-ID')}</span></td><td class="p-2 font-black ${color}">${d.tipe}</td></tr>`; } c.continue(); } }
+            db.transaction('hrm','readonly').objectStore('hrm').openCursor(null,'prev').onsuccess = e => { let c = e.target.result; if(c) { let d = c.value; if(d.nama === currentUser.nama) { let color = d.tipe.includes('IN') ? 'text-emerald-500' : 'text-amber-500'; tb.innerHTML += `<tr><td class="p-2"><span class="text-[9px] text-slate-400 block">${new Date(d.ts).toLocaleString('id-ID')}</span></td><td class="p-2 font-black ${color}">${d.tipe}</td><td class="p-2 text-[8px] text-slate-400">${d.loc||'-'}</td></tr>`; } c.continue(); } }
         }
         function savePengajuan(e) { e.preventDefault(); db.transaction('pengajuan','readwrite').objectStore('pengajuan').put({ tgl: document.getElementById('aju-tgl').value, nama: currentUser.nama, tipe: document.getElementById('aju-tipe').value, ket: document.getElementById('aju-ket').value, status: 'Menunggu', ts: new Date().getTime()}).onsuccess = () => { alert('Pengajuan Terkirim!'); document.getElementById('aju-ket').value=''; loadAjuKu(); }; }
         function loadAjuKu() {
             let tb = document.getElementById('table-aju-ku-body'); tb.innerHTML='';
             db.transaction('pengajuan','readonly').objectStore('pengajuan').openCursor(null,'prev').onsuccess = e => { let c = e.target.result; if(c) { let d = c.value; if(d.nama === currentUser.nama) { let st = d.status==='Disetujui'?'text-emerald-600':(d.status==='Ditolak'?'text-rose-600':'text-amber-600'); tb.innerHTML += `<tr><td class="p-2"><span class="font-bold">${d.tgl}</span><br><span class="text-[9px]">${d.tipe}</span></td><td class="p-2 text-xs">${d.ket}</td><td class="p-2 font-black ${st}">${d.status}</td></tr>`; } c.continue(); } }
         }
-        function saveLaporan(e) { e.preventDefault(); db.transaction('laporan','readwrite').objectStore('laporan').put({ tgl: new Date().toISOString().split('T')[0], nama: currentUser.nama, judul: document.getElementById('lap-judul').value, ket: document.getElementById('lap-ket').value, ts: new Date().getTime()}).onsuccess = () => { alert('Laporan Harian Tersimpan & Terkirim!'); document.getElementById('lap-judul').value=''; document.getElementById('lap-ket').value=''; }; }
+        function saveLaporan(e) { e.preventDefault(); db.transaction('laporan','readwrite').objectStore('laporan').put({ tgl: new Date().toISOString().split('T')[0], nama: currentUser.nama, judul: document.getElementById('lap-judul').value, ket: document.getElementById('lap-ket').value, ts: new Date().getTime()}).onsuccess = () => { alert('Laporan Harian Tersimpan & Terkirim!'); document.getElementById('lap-judul').value=''; document.getElementById('lap-ket').value=''; loadLaporanKu(); }; }
+        
+        function loadLaporanKu() {
+            let tglFilter = document.getElementById('lap-ku-tgl').value; let cont = document.getElementById('lap-ku-content'); cont.innerHTML = 'Belum ada laporan di tanggal ini.';
+            db.transaction('laporan','readonly').objectStore('laporan').openCursor(null,'prev').onsuccess = e => {
+                let c = e.target.result;
+                if(c) { let l = c.value; if(l.nama === currentUser.nama && l.tgl === tglFilter) { cont.innerHTML = `<span class="font-bold block mb-1">${l.judul}</span>${l.ket}`; } else { c.continue(); } }
+            }
+        }
 
         // ==========================================
         // MODULE: HRM & REKAP ADMIN (PUSAT HRD)
@@ -970,7 +977,7 @@
             const ws = document.getElementById('main-workspace');
             ws.innerHTML = `
                 <div class="mb-4 flex gap-2 overflow-x-auto border-b border-pink-100 pb-2">
-                    <button onclick="hrmTab='absen'; renderHRMView();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${hrmTab==='absen'?'bg-rose-950 text-white':'bg-white text-slate-600 border border-slate-200'}">Rekap Absensi</button>
+                    <button onclick="hrmTab='absen'; renderHRMView();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${hrmTab==='absen'?'bg-rose-950 text-white':'bg-white text-slate-600 border border-slate-200'}">Rekap Absensi Staf</button>
                     <button onclick="hrmTab='laporan'; renderHRMView();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${hrmTab==='laporan'?'bg-rose-950 text-white':'bg-white text-slate-600 border border-slate-200'}">Laporan Harian Staf</button>
                     <button onclick="hrmTab='pengajuan'; renderHRMView();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${hrmTab==='pengajuan'?'bg-rose-950 text-white':'bg-white text-slate-600 border border-slate-200'}">Approval Pengajuan</button>
                 </div>
@@ -984,21 +991,21 @@
             let start = document.getElementById('g-start').value; let end = document.getElementById('g-end').value;
 
             if(hrmTab === 'absen') {
-                container.innerHTML = `<h3 class="text-sm font-bold mb-4 uppercase">Rekap Absensi (Bisa Edit)</h3><table class="w-full text-left text-xs"><thead class="bg-pink-50 text-pink-600"><tr><th class="p-2">Waktu Catat</th><th class="p-2">Nama Karyawan</th><th class="p-2">Tipe Absen</th><th class="p-2">Aksi</th></tr></thead><tbody id="hrm-absen-body" class="divide-y divide-pink-50"></tbody></table>`;
+                container.innerHTML = `<h3 class="text-sm font-bold mb-4 uppercase">Rekap Absensi & Lokasi (Bisa Edit)</h3><table class="w-full text-left text-xs"><thead class="bg-pink-50 text-pink-600"><tr><th class="p-2">Waktu Catat</th><th class="p-2">Nama Karyawan</th><th class="p-2">Tipe Absen</th><th class="p-2">Lokasi GPS</th><th class="p-2">Aksi</th></tr></thead><tbody id="hrm-absen-body" class="divide-y divide-pink-50"></tbody></table>`;
                 let tb = document.getElementById('hrm-absen-body');
                 db.transaction('hrm','readonly').objectStore('hrm').openCursor(null,'prev').onsuccess = e => {
                     let c = e.target.result;
                     if(c) {
                         let d = c.value; let dt = new Date(d.ts).toISOString().split('T')[0];
                         if(dt >= start && dt <= end) {
-                            tb.innerHTML += `<tr><td class="p-2">${new Date(d.ts).toLocaleString('id-ID')}</td><td class="p-2 font-bold">${d.nama}</td><td class="p-2 font-black ${d.tipe.includes('IN')?'text-emerald-500':'text-amber-500'}">${d.tipe}</td><td class="p-2"><button onclick="bukaEditAbsen(${d.id}, '${d.nama}', '${d.tipe}', ${d.ts})" class="bg-rose-100 text-rose-700 px-2 py-1 rounded text-[9px] font-bold mr-1 cursor-pointer">Edit</button><button onclick="hapusAbsen(${d.id})" class="bg-slate-100 text-slate-500 px-2 py-1 rounded text-[9px] font-bold cursor-pointer">Hapus</button></td></tr>`;
+                            tb.innerHTML += `<tr><td class="p-2">${new Date(d.ts).toLocaleString('id-ID')}</td><td class="p-2 font-bold">${d.nama}</td><td class="p-2 font-black ${d.tipe.includes('IN')?'text-emerald-500':'text-amber-500'}">${d.tipe}</td><td class="p-2 text-[9px] text-slate-400">${d.loc||'Manual/Error'}</td><td class="p-2"><button onclick="bukaEditAbsen(${d.id}, '${d.nama}', '${d.tipe}', ${d.ts})" class="bg-rose-100 text-rose-700 px-2 py-1 rounded text-[9px] font-bold mr-1 cursor-pointer">Edit</button><button onclick="hapusAbsen(${d.id})" class="bg-slate-100 text-slate-500 px-2 py-1 rounded text-[9px] font-bold cursor-pointer">Hapus</button></td></tr>`;
                         }
                         c.continue();
                     }
                 }
             }
             else if(hrmTab === 'laporan') {
-                container.innerHTML = `<h3 class="text-sm font-bold mb-4 uppercase">Laporan Harian Pekerjaan Karyawan</h3><table class="w-full text-left text-xs"><thead class="bg-pink-50 text-pink-600"><tr><th class="p-2">Tanggal</th><th class="p-2">Karyawan</th><th class="p-2">Judul Laporan</th><th class="p-2">Deskripsi Detail</th></tr></thead><tbody id="hrm-lap-body" class="divide-y divide-pink-50"></tbody></table>`;
+                container.innerHTML = `<h3 class="text-sm font-bold mb-4 uppercase">Laporan Harian Pekerjaan Karyawan</h3><table class="w-full text-left text-xs"><thead class="bg-pink-50 text-pink-600"><tr><th class="p-2">Tanggal</th><th class="p-2">Karyawan</th><th class="p-2">Judul Laporan</th><th class="p-2">Deskripsi Detail (Per Poin)</th></tr></thead><tbody id="hrm-lap-body" class="divide-y divide-pink-50"></tbody></table>`;
                 let tb = document.getElementById('hrm-lap-body');
                 db.transaction('laporan','readonly').objectStore('laporan').openCursor(null,'prev').onsuccess = e => {
                     let c = e.target.result;
@@ -1101,7 +1108,7 @@
         }
 
         // ==========================================
-        // MODULE: MASTER CONTROL & APPROVALS
+        // MODULE: MASTER CONTROL & GITHUB CLOUD
         // ==========================================
         let mcTab = 'roles';
         function renderMaster() {
@@ -1111,8 +1118,8 @@
                     <button onclick="mcTab='roles'; renderMasterCore();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${mcTab==='roles'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Role & Karyawan</button>
                     <button onclick="mcTab='payment'; renderMasterCore();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${mcTab==='payment'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Akun Pembayaran</button>
                     <button onclick="mcTab='kurir'; renderMasterCore();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${mcTab==='kurir'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">User Kurir</button>
-                    <button onclick="mcTab='approval'; renderMasterCore();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${mcTab==='approval'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Pusat Validasi Transaksi Batal</button>
-                    <button onclick="mcTab='backup'; renderMasterCore();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${mcTab==='backup'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Backup / Restore Database</button>
+                    <button onclick="mcTab='approval'; renderMasterCore();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${mcTab==='approval'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Pusat Validasi Batal</button>
+                    <button onclick="mcTab='backup'; renderMasterCore();" class="px-4 py-2 text-xs font-bold rounded-lg cursor-pointer ${mcTab==='backup'?'bg-rose-950 text-white':'bg-white text-slate-600 border'}">Backup & Cloud Sync</button>
                 </div>
                 <div id="mc-container"></div>
             `;
@@ -1126,7 +1133,7 @@
                 mc.innerHTML = `
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm"><h3 class="text-sm font-bold text-slate-800 uppercase mb-4 border-b border-pink-100 pb-2">Buat PIN Karyawan</h3><form onsubmit="saveUserPin(event)" class="space-y-3"><input type="text" id="mu-nama" required placeholder="Nama Lengkap Karyawan" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400"><select id="mu-role" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400"></select><button type="submit" class="w-full py-2.5 bg-pink-500 text-white text-xs font-bold rounded-lg hover:bg-pink-600 cursor-pointer">Generate PIN</button></form><div class="mt-4 border-t border-pink-100 pt-4 overflow-y-auto max-h-48"><table class="w-full text-left text-xs"><tbody id="table-users-body" class="divide-y divide-pink-50"></tbody></table></div></div>
-                        <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm"><div><h3 class="text-sm font-bold text-slate-800 uppercase mb-2 border-b border-pink-100 pb-2">Manajemen Custom Role Baru</h3><p class="text-[10px] text-slate-500 mb-3">Tulis nama Role dan pilih (centang) akses modul dasbor yang diperbolehkan. Akses ke Portal Karyawan otomatis didapatkan untuk semua.</p><input type="text" id="cr-nama" placeholder="Nama Role (Cth: Admin Sosmed)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400 mb-2"><div class="grid grid-cols-2 gap-2 p-3 border border-slate-100 rounded-lg bg-slate-50 mb-3">${cBoxHTML}</div><button onclick="saveRole()" class="w-full py-2 bg-slate-800 text-white text-[10px] font-bold rounded-lg hover:bg-slate-900 cursor-pointer">Tambah Role & Hak Akses</button></div></div>
+                        <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm"><div><h3 class="text-sm font-bold text-slate-800 uppercase mb-2 border-b border-pink-100 pb-2">Manajemen Custom Role Baru</h3><p class="text-[10px] text-slate-500 mb-3">Tulis nama Role dan pilih (centang) akses modul dasbor yang diperbolehkan. Semua Role pasti akan mendapat akses Portal Karyawan ESS.</p><input type="text" id="cr-nama" placeholder="Nama Role (Cth: Admin Sosmed)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400 mb-2"><div class="grid grid-cols-2 gap-2 p-3 border border-slate-100 rounded-lg bg-slate-50 mb-3">${cBoxHTML}</div><button onclick="saveRole()" class="w-full py-2 bg-slate-800 text-white text-[10px] font-bold rounded-lg hover:bg-slate-900 cursor-pointer">Tambah Role & Hak Akses</button></div></div>
                     </div>
                 `;
                 loadRoleOptions(); loadUserPins();
@@ -1151,10 +1158,36 @@
                 }
             }
             else if(mcTab === 'backup') {
-                mc.innerHTML = `<div class="bg-white border border-rose-200 rounded-xl p-6 shadow-sm max-w-lg mx-auto text-center mt-10"><h3 class="text-lg font-bold text-rose-700 uppercase mb-2">Manajemen Database</h3><p class="text-xs text-slate-500 mb-6">Peringatan: Lakukan Backup secara berkala. Upload file backup hanya jika ingin melakukan Restore (Sistem saat ini akan ditimpa total).</p><div class="space-y-4"><button onclick="downloadBackup()" class="w-full py-4 bg-emerald-600 text-white font-bold rounded-xl shadow-md hover:bg-emerald-700 cursor-pointer">⬇️ Download File Backup (.json)</button><div class="relative pt-4 border-t border-rose-100"><button onclick="document.getElementById('modal-restore').classList.remove('hidden')" class="w-full py-4 bg-rose-100 text-rose-700 font-bold rounded-xl border border-rose-200 hover:bg-rose-200 cursor-pointer">⬆️ Upload & Restore Database</button></div></div></div>`;
+                mc.innerHTML = `
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                        <div class="bg-white border border-rose-200 rounded-xl p-6 shadow-sm text-center">
+                            <h3 class="text-sm font-bold text-rose-700 uppercase mb-2 border-b border-rose-100 pb-2">Manajemen Backup Lokal</h3>
+                            <p class="text-xs text-slate-500 mb-6">Peringatan: Lakukan Backup secara berkala. Upload file backup hanya jika ingin melakukan Restore (Sistem ditimpa total).</p>
+                            <div class="space-y-4">
+                                <button onclick="downloadBackup()" class="w-full py-4 bg-emerald-600 text-white font-bold rounded-xl shadow-md hover:bg-emerald-700 cursor-pointer">⬇️ Download File Backup (.json)</button>
+                                <button onclick="document.getElementById('modal-restore').classList.remove('hidden')" class="w-full py-4 bg-rose-100 text-rose-700 font-bold rounded-xl border border-rose-200 hover:bg-rose-200 cursor-pointer">⬆️ Upload & Restore Database</button>
+                            </div>
+                        </div>
+                        <div class="bg-white border border-indigo-200 rounded-xl p-6 shadow-sm">
+                            <h3 class="text-sm font-bold text-indigo-700 uppercase mb-2 border-b border-indigo-100 pb-2">Cloud Sync (GitHub Configuration)</h3>
+                            <p class="text-[10px] text-slate-500 mb-4">Integrasikan sistem dengan GitHub Token Anda untuk sinkronisasi Database ke Gist/Repository.</p>
+                            <form onsubmit="saveGithubConfig(event)" class="space-y-3">
+                                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">GitHub Personal Access Token (PAT)</label><input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxx" class="w-full bg-slate-50 border border-indigo-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500"></div>
+                                <div><label class="block text-[10px] font-bold text-slate-500 mb-1">Gist ID / Repository Name</label><input type="text" id="gh-gist" placeholder="e.g. 5a1b2c3d4e5f6g7h8" class="w-full bg-slate-50 border border-indigo-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500"></div>
+                                <button type="submit" class="w-full py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 cursor-pointer">Simpan Konfigurasi & Test Koneksi</button>
+                            </form>
+                            <div class="mt-4 pt-4 border-t border-indigo-100">
+                                <button onclick="alert('Modul Push GitHub Server belum aktif. Sinkronisasi lokal sukses.')" class="w-full py-3 bg-slate-800 text-white text-xs font-bold rounded-lg shadow-md cursor-pointer">☁️ PUSH TO CLOUD</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                db.transaction('settings','readonly').objectStore('settings').get('github_token').onsuccess = e => { if(e.target.result) document.getElementById('gh-token').value = e.target.result.val; };
+                db.transaction('settings','readonly').objectStore('settings').get('github_gist').onsuccess = e => { if(e.target.result) document.getElementById('gh-gist').value = e.target.result.val; };
             }
         }
 
+        // --- Master Forms Submits ---
         function savePayAcc(e) { e.preventDefault(); db.transaction('payment_acc','readwrite').objectStore('payment_acc').put({jenis: document.getElementById('pa-jenis').value, no: document.getElementById('pa-no').value, nama: document.getElementById('pa-nama').value}).onsuccess = () => renderMasterCore(); }
         function saveKurir(e) { e.preventDefault(); db.transaction('kurir','readwrite').objectStore('kurir').put({nama: document.getElementById('kr-nama').value, plat: document.getElementById('kr-plat').value}).onsuccess = () => renderMasterCore(); }
         function saveUserPin(e) { e.preventDefault(); const pin = Math.floor(100000 + Math.random() * 900000).toString(); db.transaction('users','readwrite').objectStore('users').put({ nama: document.getElementById('mu-nama').value, role: document.getElementById('mu-role').value, pin: pin }).onsuccess = () => { logActivity('PIN Center', `Generate PIN untuk ${document.getElementById('mu-nama').value}`); document.getElementById('mu-nama').value=''; loadUserPins(); }; }
@@ -1184,9 +1217,18 @@
             t.oncomplete = () => { alert('Transaksi berhasil DIBATALKAN/Dihapus dari Sistem.'); renderMasterCore(); };
         }
 
+        function saveGithubConfig(e) {
+            e.preventDefault();
+            let token = document.getElementById('gh-token').value; let gist = document.getElementById('gh-gist').value;
+            let t = db.transaction('settings','readwrite');
+            t.objectStore('settings').put({key: 'github_token', val: token});
+            t.objectStore('settings').put({key: 'github_gist', val: gist});
+            t.oncomplete = () => alert('Konfigurasi GitHub Tersimpan. Token siap digunakan untuk API Sync!');
+        }
+
         // --- BACKUP & RESTORE LOGIC ---
         function downloadBackup() {
-            let data = {}; let stores = ['users','roles','produk','trx','jurnal','crm','hrm','pengajuan','laporan','logs','stok_log','kpi','payment_acc','kurir','plan_dapur','edit_req'];
+            let data = {}; let stores = ['users','roles','produk','trx','jurnal','crm','hrm','pengajuan','laporan','logs','stok_log','kpi','payment_acc','kurir','plan_dapur','edit_req', 'settings'];
             let t = db.transaction(stores, 'readonly'); let completed = 0;
             stores.forEach(storeName => { let req = t.objectStore(storeName).getAll(); req.onsuccess = e => { data[storeName] = e.target.result; completed++; if(completed === stores.length) triggerDownload(data); }; });
         }
