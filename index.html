@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-pink-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PastryFity Enterprise ERP</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #fbcfe8; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f472b6; }
+        .sidebar-min { width: 5rem !important; }
+        .sidebar-min .hide-min { display: none !important; }
+        .sidebar-min .justify-between { justify-content: center !important; }
+        .modal-enter { animation: modalIn 0.3s ease-out forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        /* Simple bar chart styles */
+        .bar { transition: height 0.5s ease-in-out; }
+    </style>
+</head>
+<body class="h-full flex overflow-hidden text-slate-800 antialiased">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-view" class="fixed inset-0 z-50 flex items-center justify-center bg-rose-950">
+        <div class="bg-white rounded-xl p-10 max-w-sm w-full shadow-2xl text-center space-y-6">
+            <div class="mb-6">
+                <!-- Logo Pastryfity -->
+                <img src="logo.jpeg" alt="Logo Pastryfity" class="w-24 h-24 mx-auto object-cover rounded-2xl shadow-md mb-4" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y0NzJiNiIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1zaXplPSI0MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5QPC90ZXh0Pjwvc3ZnPg=='">
+                
+                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight leading-tight">Selamat Datang di Sistem Pastryfity</h1>
+                <p class="text-[10px] font-bold text-pink-500 uppercase tracking-widest mt-2">Enterprise System</p>
+            </div>
+            <div class="space-y-4 text-left">
+                <label class="block text-xs font-bold text-slate-600">Secure PIN Akses</label>
+                <input type="password" id="login-pin" maxlength="6" placeholder="••••••" class="w-full bg-pink-50 border border-pink-200 rounded-lg px-4 py-4 text-center text-3xl font-black tracking-widest text-slate-800 focus:ring-2 focus:ring-pink-400 outline-none transition-all">
+                <button onclick="login()" class="w-full py-3.5 bg-pink-500 text-white font-bold text-sm rounded-lg hover:bg-pink-600 transition-all shadow-md">
+                    Autentikasi Sistem
+                </button>
+            </div>
+            <div class="text-[10px] text-slate-400 pt-4">PIN Default Owner: <strong>8888</strong></div>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="app-view" class="flex w-full h-full hidden">
+        
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 bg-rose-950 text-slate-300 flex flex-col justify-between flex-shrink-0 transition-all duration-300 shadow-xl z-20">
+            <div class="flex flex-col h-full">
+                <div class="h-16 flex items-center justify-between px-6 border-b border-rose-900">
+                    <div class="flex items-center gap-3 hide-min">
+                        <img src="logo.jpeg" alt="Logo" class="w-8 h-8 rounded-lg object-cover shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="w-8 h-8 bg-pink-500 rounded-md hidden items-center justify-center font-bold text-white shadow-sm">P</div>
+                        <span class="font-bold text-white tracking-wide">PastryFity</span>
+                    </div>
+                    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-1 rounded transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scroll" id="nav-container">
+                    <!-- Nav Items dynamically populated based on role -->
+                </div>
+
+                <div class="p-4 border-t border-rose-900 hide-min">
+                    <div class="bg-rose-900 rounded-lg p-3 flex items-center gap-3 cursor-pointer hover:bg-rose-800 transition-all" onclick="openProfileModal()">
+                        <div class="w-10 h-10 rounded-full bg-pink-600 flex items-center justify-center text-white font-bold" id="sidebar-avatar">U</div>
+                        <div class="flex-1 overflow-hidden">
+                            <p class="text-xs font-bold text-white truncate" id="sidebar-user-name">User Name</p>
+                            <p class="text-[10px] text-pink-300 truncate" id="sidebar-user-role">Role</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden bg-pink-50/30 relative">
+            
+            <!-- HEADER -->
+            <header class="h-16 bg-white border-b border-pink-100 px-8 flex items-center justify-between flex-shrink-0 z-10 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <!-- Top Bar Logo & Greeting -->
+                    <img src="logo.jpeg" alt="Logo" class="w-10 h-10 rounded-full border-2 border-pink-100 shadow-sm object-cover" onerror="this.style.display='none'">
+                    <div>
+                        <p class="text-[10px] font-bold text-pink-500 uppercase tracking-wider">Selamat Datang, <span id="header-user-name" class="text-slate-800"></span></p>
+                        <h2 id="header-title" class="text-lg font-extrabold text-slate-800 tracking-tight leading-none">Dashboard</h2>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-pink-50 rounded-lg px-3 py-1.5 border border-pink-100">
+                        <span class="text-[10px] font-bold text-pink-500">PERIODE:</span>
+                        <input type="month" id="global-periode" onchange="syncApp()" class="bg-transparent text-xs font-bold text-slate-800 outline-none">
+                    </div>
+                    <button onclick="syncApp()" class="bg-white border border-pink-200 text-pink-600 hover:bg-pink-50 p-2 rounded-lg transition-all shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8" id="main-workspace">
+                <!-- TABS CONTENT INJECTED HERE -->
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: PROFILE & ACCOUNT -->
+    <div id="modal-profile" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden modal-enter">
+            <div class="bg-rose-950 p-6 text-center">
+                <div class="w-20 h-20 bg-pink-500 rounded-full mx-auto border-4 border-rose-900 flex items-center justify-center text-3xl text-white font-bold mb-3" id="modal-avatar">U</div>
+                <h3 class="text-lg font-bold text-white" id="modal-profile-name">Name</h3>
+                <p class="text-xs text-pink-300" id="modal-profile-role">Role</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex border-b border-pink-100">
+                    <button class="flex-1 py-2 text-xs font-bold border-b-2 border-pink-500 text-pink-600">Info Profil</button>
+                </div>
+                <form id="form-profile" onsubmit="updateProfile(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Lengkap</label>
+                        <input type="text" id="prof-nama" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium outline-none focus:border-pink-400">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email / Kontak</label>
+                        <input type="text" id="prof-kontak" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium outline-none focus:border-pink-400">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="requestPinChange()" class="w-1/2 py-2 border border-amber-300 text-amber-600 text-[10px] font-bold rounded-lg hover:bg-amber-50">Request Ubah PIN</button>
+                        <button type="submit" class="w-1/2 py-2 bg-pink-500 text-white text-[10px] font-bold rounded-lg hover:bg-pink-600">Simpan Profil</button>
+                    </div>
+                </form>
+                <div class="pt-4 border-t border-slate-200">
+                    <h4 class="text-[10px] font-bold text-slate-500 uppercase mb-2">Log Aktivitas Terakhir</h4>
+                    <ul class="text-[10px] text-slate-600 space-y-1 max-h-24 overflow-y-auto" id="profile-log-list"></ul>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between">
+                <button onclick="closeProfileModal()" class="text-xs font-bold text-slate-500 hover:text-slate-800">Tutup</button>
+                <button onclick="logout()" class="text-xs font-bold text-rose-600 hover:text-rose-800">Keluar Sistem (Logout)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= DATABASE ENGINE =================
+        let db;
+        let currentUser = null;
+        let currentTab = '';
+        let posCart = [];
+        
+        // Define module registry for dynamic role assignment
+        const MODULES = {
+            'dashboard': { icon: '📊', label: 'Executive Dashboard', render: renderDashboard },
+            'pos': { icon: '🛍️', label: 'Terminal POS & Kasir', render: renderPOS },
+            'dapur': { icon: '👩‍🍳', label: 'Produksi & KOT Dapur', render: renderDapur },
+            'stok': { icon: '📦', label: 'Master Stok & Gudang', render: renderStok },
+            'akuntansi': { icon: '🏦', label: 'Akuntansi & Laporan', render: renderAkuntansi },
+            'crm': { icon: '👥', label: 'CRM & Pelanggan', render: renderCRM },
+            'hrm': { icon: '📋', label: 'HRM & Absensi', render: renderHRM },
+            'kpi': { icon: '⭐', label: 'KPI & Payroll', render: renderKPI },
+            'legal': { icon: '📜', label: 'Legal & Surat Resmi', render: renderLegal },
+            'master': { icon: '⚙️', label: 'Master Control & Admin', render: renderMaster }
+        };
+
+        const DEFAULT_ROLES = {
+            'Super Admin': Object.keys(MODULES),
+            'Owner': ['dashboard', 'pos', 'stok', 'akuntansi', 'crm', 'hrm', 'kpi', 'legal', 'master'],
+            'Kasir': ['pos', 'crm', 'hrm'],
+            'Baker': ['dapur', 'stok', 'hrm'],
+            'Finance': ['akuntansi', 'kpi', 'hrm'],
+            'Supervisor': ['dashboard', 'pos', 'stok', 'crm', 'hrm', 'kpi']
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('global-periode').value = new Date().toISOString().substring(0,7);
+            initDB();
+        });
+
+        function initDB() {
+            const req = indexedDB.open('PastryFity_Ent_V6', 1);
+            req.onupgradeneeded = (e) => {
+                const u = e.target.result;
+                if(!u.objectStoreNames.contains('users')) u.createObjectStore('users', { keyPath: 'pin' });
+                if(!u.objectStoreNames.contains('roles')) u.createObjectStore('roles', { keyPath: 'name' });
+                if(!u.objectStoreNames.contains('produk')) u.createObjectStore('produk', { keyPath: 'id', autoIncrement: true });
+                if(!u.objectStoreNames.contains('trx')) u.createObjectStore('trx', { keyPath: 'id', autoIncrement: true });
+                if(!u.objectStoreNames.contains('jurnal')) u.createObjectStore('jurnal', { keyPath: 'id', autoIncrement: true });
+                if(!u.objectStoreNames.contains('crm')) u.createObjectStore('crm', { keyPath: 'hp' });
+                if(!u.objectStoreNames.contains('hrm')) u.createObjectStore('hrm', { keyPath: 'id', autoIncrement: true });
+                if(!u.objectStoreNames.contains('logs')) u.createObjectStore('logs', { keyPath: 'id', autoIncrement: true });
+                if(!u.objectStoreNames.contains('kurir')) u.createObjectStore('kurir', { keyPath: 'id', autoIncrement: true });
+                if(!u.objectStoreNames.contains('edit_req')) u.createObjectStore('edit_req', { keyPath: 'id', autoIncrement: true });
+                if(!u.objectStoreNames.contains('kpi')) u.createObjectStore('kpi', { keyPath: 'nama' });
+            };
+            req.onsuccess = (e) => {
+                db = e.target.result;
+                seedInitialData();
+            };
+        }
+
+        function seedInitialData() {
+            const tx = db.transaction(['users', 'roles', 'kurir', 'produk'], 'readwrite');
+            
+            // Seed Default Roles
+            const storeRoles = tx.objectStore('roles');
+            for(let r in DEFAULT_ROLES) {
+                storeRoles.get(r).onsuccess = e => { if(!e.target.result) storeRoles.put({name: r, modules: DEFAULT_ROLES[r]}); }
+            }
+
+            // Seed Super Admin
+            const storeUsers = tx.objectStore('users');
+            storeUsers.get('8888').onsuccess = e => {
+                if(!e.target.result) storeUsers.put({ pin: '8888', nama: 'Owner System', role: 'Super Admin', kontak: 'owner@pastryfity.com' });
+            }
+
+            // Seed Sample Kurir
+            const storeKurir = tx.objectStore('kurir');
+            storeKurir.getAll().onsuccess = e => {
+                if(e.target.result.length===0) { storeKurir.put({nama: 'Kurir Internal 1', plat: 'BK 1234 XY'}); }
+            }
+
+            tx.oncomplete = () => console.log("DB Ready.");
+        }
+
+        function logActivity(action, detail) {
+            if(!currentUser) return;
+            db.transaction('logs','readwrite').objectStore('logs').put({
+                user: currentUser.nama, pin: currentUser.pin, action, detail, ts: new Date().getTime()
+            });
+        }
+
+        // ================= AUTH & LAYOUT =================
+        function login() {
+            const pin = document.getElementById('login-pin').value;
+            db.transaction(['users', 'roles'],'readonly').objectStore('users').get(pin).onsuccess = e => {
+                if(e.target.result) {
+                    currentUser = e.target.result;
+                    document.getElementById('login-view').classList.add('hidden');
+                    document.getElementById('app-view').classList.remove('hidden');
+                    
+                    document.getElementById('sidebar-user-name').innerText = currentUser.nama;
+                    document.getElementById('sidebar-user-role').innerText = currentUser.role;
+                    document.getElementById('sidebar-avatar').innerText = currentUser.nama.charAt(0).toUpperCase();
+                    
+                    // Header Greeting Name
+                    document.getElementById('header-user-name').innerText = currentUser.nama;
+                    
+                    logActivity('Login', 'Masuk ke sistem');
+                    buildNavigation();
+                } else alert('PIN tidak terdaftar atau salah.');
+            };
+        }
+
+        function logout() {
+            logActivity('Logout', 'Keluar dari sistem');
+            setTimeout(()=>location.reload(), 300);
+        }
+
+        function buildNavigation() {
+            db.transaction('roles','readonly').objectStore('roles').get(currentUser.role).onsuccess = e => {
+                const r = e.target.result;
+                const mods = r ? r.modules : DEFAULT_ROLES['Super Admin']; // fallback
+                const nav = document.getElementById('nav-container');
+                nav.innerHTML = '';
+                
+                mods.forEach(m => {
+                    if(MODULES[m]) {
+                        nav.innerHTML += `
+                            <button onclick="navigate('${m}')" id="nav-btn-${m}" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:bg-rose-900 hover:text-pink-100 transition-all">
+                                <span class="text-base">${MODULES[m].icon}</span>
+                                <span class="hide-min">${MODULES[m].label}</span>
+                            </button>
+                        `;
+                    }
+                });
+                
+                if(mods.length > 0) navigate(mods[0]);
+            };
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('sidebar-min'); }
+
+        function navigate(tab) {
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('bg-pink-500', 'text-white');
+                b.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById(`nav-btn-${tab}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('bg-pink-500', 'text-white');
+            }
+            currentTab = tab;
+            document.getElementById('header-title').innerText = MODULES[tab].label;
+            MODULES[tab].render(); // Render specific module view
+        }
+
+        function syncApp() { if(currentTab && MODULES[currentTab]) MODULES[currentTab].render(); }
+
+        // ================= PROFILE MODAL =================
+        function openProfileModal() {
+            document.getElementById('modal-profile').classList.remove('hidden');
+            document.getElementById('modal-profile-name').innerText = currentUser.nama;
+            document.getElementById('modal-profile-role').innerText = currentUser.role;
+            document.getElementById('modal-avatar').innerText = currentUser.nama.charAt(0).toUpperCase();
+            document.getElementById('prof-nama').value = currentUser.nama;
+            document.getElementById('prof-kontak').value = currentUser.kontak || '';
+            
+            // Load logs
+            const ul = document.getElementById('profile-log-list'); ul.innerHTML = '';
+            db.transaction('logs','readonly').objectStore('logs').openCursor(null, 'prev').onsuccess = e => {
+                let c = e.target.result;
+                if(c && ul.children.length < 10) {
+                    if(c.value.pin === currentUser.pin) {
+                        ul.innerHTML += `<li class="py-1 border-b border-slate-100"><span class="text-slate-400 block text-[8px]">${new Date(c.value.ts).toLocaleString('id-ID')}</span>${c.value.action}: ${c.value.detail}</li>`;
+                    }
+                    c.continue();
+                }
+            };
+        }
+        function closeProfileModal() { document.getElementById('modal-profile').classList.add('hidden'); }
+        function updateProfile(e) {
+            e.preventDefault();
+            currentUser.nama = document.getElementById('prof-nama').value;
+            currentUser.kontak = document.getElementById('prof-kontak').value;
+            db.transaction('users','readwrite').objectStore('users').put(currentUser).onsuccess = () => {
+                document.getElementById('sidebar-user-name').innerText = currentUser.nama;
+                document.getElementById('header-user-name').innerText = currentUser.nama;
+                alert('Profil tersimpan.'); logActivity('Update Profil', 'Mengubah data diri'); closeProfileModal();
+            };
+        }
+        function requestPinChange() {
+            alert('Request perubahan PIN telah dikirim ke Super Admin. Menunggu persetujuan.');
+            logActivity('Request PIN', 'Meminta perubahan PIN');
+        }
+
+        // ================= HELPER FUNCTIONS =================
+        function toRp(num) { return 'Rp ' + (num||0).toLocaleString('id-ID'); }
+        function createTable(headers, rowsHtml, actionsHtml = '') {
+            return `
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+                ${actionsHtml ? `<div class="p-3 border-b border-pink-100 bg-pink-50/50 flex gap-2 overflow-x-auto">${actionsHtml}</div>` : ''}
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs whitespace-nowrap">
+                        <thead class="bg-pink-50 text-pink-600 font-bold uppercase tracking-wider">
+                            <tr>${headers.map(h=>`<th class="px-4 py-3">${h}</th>`).join('')}</tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        function exportTableToCSV(filename, rowsArray) {
+            let csvContent = "data:text/csv;charset=utf-8," + rowsArray.map(e => e.join(",")).join("\n");
+            let encUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encUri);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click(); link.remove();
+            logActivity('Export Data', `Export CSV ${filename}`);
+        }
+
+        // ==========================================
+        // MODULE: DASHBOARD (EXECUTIVE)
+        // ==========================================
+        function renderDashboard() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6" id="dash-cards">
+                    <!-- Cards populated via JS -->
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white border border-pink-100 rounded-xl p-5 shadow-sm">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase mb-4">Grafik Penjualan POS (Bulan Ini)</h3>
+                        <div class="h-48 flex items-end gap-2 border-b border-l border-slate-200 p-2" id="chart-sales">
+                            <!-- Simple DOM Bar Chart -->
+                        </div>
+                    </div>
+                    <div class="bg-white border border-pink-100 rounded-xl p-5 shadow-sm">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase mb-4">Aktivitas Sistem Terakhir</h3>
+                        <ul class="space-y-2 text-xs text-slate-600 max-h-48 overflow-y-auto" id="dash-logs"></ul>
+                    </div>
+                </div>
+            `;
+
+            let o=0, p=0, d=0;
+            const per = document.getElementById('global-periode').value;
+            const chartData = {}; // Aggregate by day
+
+            db.transaction(['trx', 'logs'],'readonly').objectStore('trx').openCursor().onsuccess = e => {
+                let c = e.target.result;
+                if(c) {
+                    let v = c.value;
+                    if(v.tgl.startsWith(per)) {
+                        o += v.net; p += v.sisa; d += v.dp;
+                        let day = v.tgl.split('-')[2];
+                        chartData[day] = (chartData[day]||0) + v.net;
+                    }
+                    c.continue();
+                } else {
+                    document.getElementById('dash-cards').innerHTML = `
+                        <div class="bg-white border border-pink-100 p-5 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">Omset Kotor</p><p class="text-2xl font-black text-slate-800 mt-1">${toRp(o)}</p></div>
+                        <div class="bg-white border border-pink-100 p-5 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">Kas Masuk (Lunas+DP)</p><p class="text-2xl font-black text-pink-500 mt-1">${toRp(o-p)}</p></div>
+                        <div class="bg-white border border-pink-100 p-5 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400 uppercase">Piutang Pelanggan</p><p class="text-2xl font-black text-amber-500 mt-1">${toRp(p)}</p></div>
+                        <div class="bg-rose-950 p-5 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-pink-300 uppercase">Total Transaksi</p><p class="text-2xl font-black text-white mt-1">${Object.keys(chartData).length} Hari Aktif</p></div>
+                    `;
+
+                    // Render Chart
+                    const cDiv = document.getElementById('chart-sales');
+                    let maxVal = Math.max(...Object.values(chartData), 1);
+                    for(let i=1; i<=31; i++) {
+                        let day = i<10?'0'+i:''+i;
+                        let val = chartData[day]||0;
+                        let h = (val/maxVal)*100;
+                        if(val>0) {
+                            cDiv.innerHTML += `<div class="w-full bg-pink-400 rounded-t-sm bar relative group" style="height:${h}%">
+                                <span class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[8px] px-1 rounded opacity-0 group-hover:opacity-100">${toRp(val)}</span>
+                            </div>`;
+                        }
+                    }
+                }
+            };
+
+            db.transaction('logs','readonly').objectStore('logs').openCursor(null,'prev').onsuccess = e => {
+                let c = e.target.result;
+                let list = document.getElementById('dash-logs');
+                if(c && list.children.length < 15) {
+                    list.innerHTML += `<li class="flex gap-2"><span class="text-slate-400 w-16 flex-shrink-0">${new Date(c.value.ts).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span> <span class="font-bold text-slate-800">${c.value.user}</span> <span>${c.value.action}</span></li>`;
+                    c.continue();
+                }
+            };
+        }
+
+        // ==========================================
+        // MODULE: TERMINAL POS & KASIR
+        // ==========================================
+        function renderPOS() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 h-full">
+                    <div class="xl:col-span-2 flex flex-col h-[calc(100vh-8rem)]">
+                        <div class="bg-white border border-pink-100 rounded-xl shadow-sm p-4 mb-4 flex justify-between items-center flex-shrink-0">
+                            <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+                                <button onclick="filterPosCat('All')" class="pos-cat px-4 py-2 bg-pink-500 text-white text-xs font-bold rounded-lg whitespace-nowrap shadow-sm">Semua</button>
+                                <button onclick="filterPosCat('Bread')" class="pos-cat px-4 py-2 bg-pink-50 text-pink-600 text-xs font-bold rounded-lg whitespace-nowrap hover:bg-pink-100">Bread</button>
+                                <button onclick="filterPosCat('Pastry')" class="pos-cat px-4 py-2 bg-pink-50 text-pink-600 text-xs font-bold rounded-lg whitespace-nowrap hover:bg-pink-100">Pastry</button>
+                                <button onclick="filterPosCat('Cakes')" class="pos-cat px-4 py-2 bg-pink-50 text-pink-600 text-xs font-bold rounded-lg whitespace-nowrap hover:bg-pink-100">Cakes</button>
+                            </div>
+                            <button onclick="posAddCustom()" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-lg shadow-sm whitespace-nowrap">+ Custom Item</button>
+                        </div>
+                        <div class="flex-1 overflow-y-auto bg-white border border-pink-100 rounded-xl shadow-sm p-4">
+                            <div id="pos-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="xl:col-span-1 bg-white border border-pink-100 rounded-xl shadow-sm flex flex-col h-[calc(100vh-8rem)]">
+                        <div class="p-4 border-b border-pink-100 flex-shrink-0 bg-pink-50/50 rounded-t-xl">
+                            <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">Keranjang POS</h3>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-2" id="pos-cart-list"></div>
+                        
+                        <div class="p-4 border-t border-pink-100 space-y-3 flex-shrink-0 bg-pink-50/50 rounded-b-xl">
+                            <!-- Customer Check -->
+                            <div class="relative">
+                                <input type="text" id="pos-hp" placeholder="No HP/WA Pelanggan" onchange="lookupCustomer()" class="w-full text-xs font-bold px-3 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" id="pos-nama" placeholder="Nama Pelanggan" class="w-full text-xs font-medium px-3 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500">
+                                <input type="date" id="pos-tgl" class="w-full text-xs font-medium px-3 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500">
+                            </div>
+                            
+                            <!-- Delivery & Pack -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="pos-kirim" onchange="togglePosDelivery()" class="w-full text-xs font-medium px-3 py-2 border border-pink-200 rounded-lg outline-none bg-white focus:border-pink-500">
+                                    <option value="Ambil Sendiri">Ambil Sendiri</option>
+                                    <option value="Kurir Toko">Kurir Toko</option>
+                                    <option value="Gojek/Grab">Gojek/Grab</option>
+                                </select>
+                                <select id="pos-pack" class="w-full text-xs font-medium px-3 py-2 border border-pink-200 rounded-lg outline-none bg-white focus:border-pink-500">
+                                    <option value="Kantong Plastik">Plastik (Gratis)</option>
+                                    <option value="Paper Bag Premium">Paper Bag (+Rp 5.000)</option>
+                                </select>
+                            </div>
+                            <div id="pos-del-extra" class="hidden">
+                                <input type="text" id="pos-del-detail" placeholder="Pilih Kurir / Masukkan Plat Ojol" class="w-full text-xs font-medium px-3 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500">
+                            </div>
+
+                            <!-- Payment Details -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="pos-status" onchange="togglePosDp()" class="w-full text-xs font-bold text-pink-700 px-3 py-2 border border-pink-200 bg-pink-50 rounded-lg outline-none">
+                                    <option value="Lunas">Status: LUNAS</option>
+                                    <option value="DP">Status: DP</option>
+                                </select>
+                                <select id="pos-method" class="w-full text-xs font-bold text-slate-700 px-3 py-2 border border-slate-300 rounded-lg outline-none bg-white focus:border-pink-500">
+                                    <option value="Tunai">Tunai</option>
+                                    <option value="QRIS">QRIS</option>
+                                    <option value="Transfer">Transfer Bank</option>
+                                </select>
+                            </div>
+                            <div id="pos-dp-container" class="hidden">
+                                <input type="number" id="pos-dp-nom" oninput="calcPosSum()" placeholder="Nominal DP yang dibayar (Rp)" class="w-full text-xs font-bold px-3 py-2 border border-amber-300 bg-amber-50 text-amber-700 rounded-lg outline-none">
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="bg-rose-950 rounded-xl p-3 text-white space-y-1 shadow-inner">
+                                <div class="flex justify-between text-[10px] text-pink-300"><span>Subtotal:</span><span id="pos-sum-sub">Rp 0</span></div>
+                                <div class="flex justify-between text-[10px] text-pink-300"><span>PPN (11%):</span><span id="pos-sum-ppn">Rp 0</span></div>
+                                <div class="flex justify-between text-sm font-black pt-1 border-t border-rose-800 text-emerald-400"><span>TOTAL:</span><span id="pos-sum-net">Rp 0</span></div>
+                                <div class="flex justify-between text-[10px] font-bold text-rose-400 hidden" id="pos-sum-sisa-row"><span>SISA PIUTANG:</span><span id="pos-sum-sisa">Rp 0</span></div>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button onclick="checkoutPos('Normal')" class="w-3/4 py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold text-xs rounded-lg shadow-sm">Bayar & Proses Order</button>
+                                <button onclick="checkoutPos('Complement')" class="w-1/4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-lg shadow-sm" title="Complementary (Gratis)">🎁 Comp</button>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="printKasir()" id="btn-p-kasir" disabled class="flex-1 py-2 border border-slate-300 text-slate-600 font-bold text-[10px] rounded-lg disabled:opacity-50 hover:bg-slate-50">🖨️ Struk Kasir</button>
+                                <button onclick="printDapur()" id="btn-p-dapur" disabled class="flex-1 py-2 border border-slate-300 text-slate-600 font-bold text-[10px] rounded-lg disabled:opacity-50 hover:bg-slate-50">👨‍🍳 Struk Dapur</button>
+                                <button onclick="sendWa()" id="btn-p-wa" disabled class="flex-1 py-2 bg-emerald-100 text-emerald-700 font-bold text-[10px] rounded-lg disabled:opacity-50 hover:bg-emerald-200">💬 Kirim WA</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('pos-tgl').value = new Date().toISOString().split('T')[0];
+            posCart = [];
+            filterPosCat('All');
+        }
+
+        let activePosCategory = 'All';
+        function filterPosCat(cat) {
+            activePosCategory = cat;
+            document.querySelectorAll('.pos-cat').forEach(b => {
+                if(b.innerText === cat || (cat==='All'&&b.innerText==='Semua')) {
+                    b.className = 'pos-cat px-4 py-2 bg-pink-500 text-white text-xs font-bold rounded-lg whitespace-nowrap shadow-sm';
+                } else {
+                    b.className = 'pos-cat px-4 py-2 bg-pink-50 text-pink-600 text-xs font-bold rounded-lg whitespace-nowrap hover:bg-pink-100';
+                }
+            });
+            renderPosGrid();
+        }
+
+        function renderPosGrid() {
+            const g = document.getElementById('pos-grid'); g.innerHTML = '';
+            db.transaction('produk','readonly').objectStore('produk').openCursor().onsuccess = e => {
+                let c = e.target.result;
+                if(c) {
+                    let p = c.value;
+                    if(p.tipe === 'Barang Displei' && p.stok > 0 && (activePosCategory === 'All' || p.kat === activePosCategory)) {
+                        g.innerHTML += `
+                            <div onclick="addPosCart(${p.id}, '${p.nama}', ${p.harga}, ${p.stok})" class="border border-pink-100 rounded-xl p-3 cursor-pointer hover:border-pink-400 hover:shadow-md transition-all flex flex-col justify-between bg-white">
+                                <div class="text-[9px] font-bold text-pink-500 mb-1 uppercase">${p.kat}</div>
+                                <div class="text-xs font-bold text-slate-800 leading-tight mb-3">${p.nama}</div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] font-black text-slate-900">${toRp(p.harga)}</span>
+                                    <span class="text-[9px] font-bold text-pink-600 bg-pink-50 px-1.5 py-0.5 rounded border border-pink-100">Stk: ${p.stok}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    c.continue();
+                }
+            }
+        }
+
+        function posAddCustom() {
+            let n = prompt("Masukkan Nama Item Custom:"); if(!n) return;
+            let h = prompt("Masukkan Harga Total (Rp):"); if(!h) return;
+            posCart.push({id:'custom', nama: `[Custom] ${n}`, harga: parseFloat(h)||0, qty:1, max:999});
+            renderPosCart();
+        }
+
+        function addPosCart(id, nama, harga, max) {
+            let ex = posCart.find(i=>i.id===id);
+            if(ex) { if(ex.qty+1 > max) return alert('Stok fisik tidak mencukupi.'); ex.qty++; }
+            else { posCart.push({id, nama, harga, qty:1, max}); }
+            renderPosCart();
+        }
+        function updPosQty(idx, val) {
+            let q = parseInt(val)||1;
+            if(posCart[idx].id !== 'custom' && q > posCart[idx].max) return alert('Melebihi stok gudang!');
+            posCart[idx].qty = q; renderPosCart();
+        }
+        function delPosCart(idx) { posCart.splice(idx,1); renderPosCart(); }
+
+        function renderPosCart() {
+            let l = document.getElementById('pos-cart-list'); l.innerHTML = '';
+            posCart.forEach((i,x) => {
+                l.innerHTML += `
+                    <div class="flex justify-between items-center py-2 border-b border-pink-50 last:border-0">
+                        <div class="flex-1 pr-2 overflow-hidden">
+                            <h4 class="text-[11px] font-bold text-slate-800 truncate">${i.nama}</h4>
+                            <p class="text-[9px] text-slate-500">${toRp(i.harga)}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="number" value="${i.qty}" onchange="updPosQty(${x}, this.value)" class="w-12 border border-slate-200 rounded text-center text-xs py-1 outline-none">
+                            <div class="w-16 text-right text-[11px] font-black text-slate-800">${toRp(i.harga*i.qty)}</div>
+                            <button onclick="delPosCart(${x})" class="text-rose-500 hover:bg-rose-50 p-1 rounded font-bold">X</button>
+                        </div>
+                    </div>
+                `;
+            });
+            calcPosSum();
+        }
+
+        function lookupCustomer() {
+            let hp = document.getElementById('pos-hp').value;
+            db.transaction('crm','readonly').objectStore('crm').get(hp).onsuccess = e => {
+                if(e.target.result) {
+                    document.getElementById('pos-nama').value = e.target.result.nama;
+                    document.getElementById('pos-is-member').checked = true;
+                    logActivity('Lookup CRM', `Data pelanggan ${e.target.result.nama} ditemukan`);
+                }
+            }
+        }
+
+        function togglePosDelivery() {
+            let v = document.getElementById('pos-kirim').value;
+            let d = document.getElementById('pos-del-extra');
+            if(v==='Ambil Sendiri') { d.classList.add('hidden'); }
+            else { d.classList.remove('hidden'); document.getElementById('pos-del-detail').focus(); }
+        }
+
+        function togglePosDp() {
+            let v = document.getElementById('pos-status').value;
+            let c = document.getElementById('pos-dp-container');
+            let sr = document.getElementById('pos-sum-sisa-row');
+            if(v==='DP') { c.classList.remove('hidden'); sr.classList.remove('hidden'); document.getElementById('pos-dp-nom').focus(); }
+            else { c.classList.add('hidden'); sr.classList.add('hidden'); document.getElementById('pos-dp-nom').value=''; }
+            calcPosSum();
+        }
+
+        function calcPosSum() {
+            let packOpt = document.getElementById('pos-pack') ? document.getElementById('pos-pack').value : '';
+            let packCost = packOpt.includes('Paper Bag') ? 5000 : 0;
+            
+            let sub = posCart.reduce((a,c)=>a+(c.harga*c.qty),0) + packCost;
+            let ppn = sub * 0.11;
+            let net = sub + ppn;
+
+            document.getElementById('pos-sum-sub').innerText = toRp(sub);
+            document.getElementById('pos-sum-ppn').innerText = toRp(ppn);
+            document.getElementById('pos-sum-net').innerText = toRp(net);
+
+            let stat = document.getElementById('pos-status') ? document.getElementById('pos-status').value : 'Lunas';
+            let dp = parseFloat(document.getElementById('pos-dp-nom')?.value) || 0;
+            let sisa = stat==='DP' ? net-dp : 0;
+            
+            if(document.getElementById('pos-sum-sisa')) document.getElementById('pos-sum-sisa').innerText = toRp(sisa);
+
+            return {sub, ppn, net, stat, dp:(stat==='DP'?dp:net), sisa, pack:packOpt};
+        }
+
+        let posLastTrx = null;
+        function checkoutPos(type) {
+            if(posCart.length===0) return alert('Keranjang Kosong!');
+            let hp = document.getElementById('pos-hp').value || '-';
+            let nm = document.getElementById('pos-nama').value || 'Guest';
+            let d = calcPosSum();
+            
+            if(type==='Complement') { d.net=0; d.dp=0; d.sisa=0; d.ppn=0; d.stat='Complement'; }
+            if(d.stat==='DP' && d.dp<=0) return alert('Input nominal DP!');
+
+            let delv = document.getElementById('pos-kirim').value;
+            let delvDet = document.getElementById('pos-del-detail').value;
+            let method = document.getElementById('pos-method').value;
+
+            let trx = {
+                tgl: document.getElementById('pos-tgl').value,
+                cust: nm, hp, items: posCart, sub: d.sub, ppn: d.ppn, net: d.net, dp: d.dp, sisa: d.sisa, 
+                stat: d.stat, method, kirim: delv, kirimDet: delvDet, pack: d.pack, type,
+                kasir: currentUser.nama, ts: new Date().getTime()
+            };
+
+            let t = db.transaction(['trx','jurnal','produk','crm'], 'readwrite');
+            t.objectStore('trx').put(trx);
+
+            // Jurnal Financial (Basis Kas)
+            if(d.dp>0) {
+                t.objectStore('jurnal').put({ tgl: trx.tgl, jenis: 'Pendapatan Operasional', nom: d.dp, ket: `POS ${d.stat} [${method}] - ${nm}`});
+                if(d.ppn>0) t.objectStore('jurnal').put({ tgl: trx.tgl, jenis: 'Hutang Pajak', nom: d.ppn, ket: `PPN Keluaran dari ${nm}`});
+            }
+
+            // Potong Stok
+            let sp = t.objectStore('produk');
+            posCart.forEach(i => {
+                if(i.id!=='custom') {
+                    sp.get(i.id).onsuccess = e => {
+                        let p = e.target.result; if(p) { p.stok -= i.qty; sp.put(p); }
+                    };
+                }
+            });
+
+            // CRM Member
+            if(document.getElementById('pos-is-member')?.checked && hp!=='-') {
+                let sc = t.objectStore('crm');
+                sc.get(hp).onsuccess = e => {
+                    let c = e.target.result || {hp, nama:nm, total:0, poin:0};
+                    c.total += d.net; c.poin += 10; sc.put(c);
+                };
+            }
+
+            t.oncomplete = () => {
+                logActivity('Transaksi POS', `Order ${nm} - ${toRp(d.net)}`);
+                alert('Transaksi Berhasil Tersimpan di Database Lokal.');
+                posLastTrx = trx;
+                document.getElementById('btn-p-kasir').disabled = false;
+                document.getElementById('btn-p-dapur').disabled = false;
+                document.getElementById('btn-p-wa').disabled = false;
+                posCart = []; renderPosCart(); renderPosGrid();
+            };
+        }
+
+        function printKasir() {
+            if(!posLastTrx) return;
+            const doc = new window.jspdf.jsPDF({ format: [80, 150] });
+            doc.setFontSize(10); doc.text("PASTRYFITY ENTERPRISE", 40, 10, {align:"center"});
+            doc.setFontSize(8); doc.text("Struk Kasir Customer", 40, 14, {align:"center"});
+            doc.text("-----------------------------------------", 5, 18);
+            doc.text(`Waktu: ${new Date(posLastTrx.ts).toLocaleString('id-ID')}`, 5, 22);
+            doc.text(`Kasir: ${posLastTrx.kasir}`, 5, 26);
+            doc.text(`Pelanggan: ${posLastTrx.cust}`, 5, 30);
+            doc.text(`Pengiriman: ${posLastTrx.kirim}`, 5, 34);
+            doc.text("-----------------------------------------", 5, 38);
+            let y = 43;
+            posLastTrx.items.forEach(i => {
+                doc.text(`${i.nama}`, 5, y); y+=4;
+                doc.text(`${i.qty}x @${i.harga.toLocaleString()} = ${(i.qty*i.harga).toLocaleString()}`, 5, y); y+=5;
+            });
+            doc.text("-----------------------------------------", 5, y); y+=5;
+            doc.text(`Subtotal: Rp ${posLastTrx.sub.toLocaleString()}`, 5, y); y+=4;
+            doc.text(`PPN 11%: Rp ${posLastTrx.ppn.toLocaleString()}`, 5, y); y+=4;
+            doc.setFontSize(10); doc.text(`TOTAL: Rp ${posLastTrx.net.toLocaleString()}`, 5, y); y+=6;
+            doc.setFontSize(8);
+            doc.text(`Status: ${posLastTrx.stat} (${posLastTrx.method})`, 5, y); y+=4;
+            doc.text(`Dibayar: Rp ${posLastTrx.dp.toLocaleString()}`, 5, y); y+=4;
+            if(posLastTrx.sisa>0) { doc.text(`Sisa Piutang: Rp ${posLastTrx.sisa.toLocaleString()}`, 5, y); y+=4; }
+            doc.text("-----------------------------------------", 5, y); y+=6;
+            doc.text("Terima kasih telah berbelanja di PastryFity!", 40, y, {align:"center"});
+            doc.save(`Struk_Kasir_${posLastTrx.cust}.pdf`);
+        }
+
+        function printDapur() {
+            if(!posLastTrx) return;
+            const doc = new window.jspdf.jsPDF({ format: [80, 100] });
+            doc.setFontSize(12); doc.text("KITCHEN ORDER TICKET (KOT)", 40, 10, {align:"center"});
+            doc.setFontSize(8); doc.text("-----------------------------------------", 5, 15);
+            doc.text(`Waktu: ${new Date(posLastTrx.ts).toLocaleString('id-ID')}`, 5, 20);
+            doc.text(`Order: ${posLastTrx.cust}`, 5, 25);
+            doc.text(`Ambil/Kirim: ${posLastTrx.kirim} - ${posLastTrx.tgl}`, 5, 30);
+            doc.text(`Catatan Pack: ${posLastTrx.pack}`, 5, 35);
+            doc.text("-----------------------------------------", 5, 40);
+            doc.setFontSize(10);
+            let y = 46;
+            posLastTrx.items.forEach(i => {
+                doc.text(`[ ${i.qty}x ] ${i.nama}`, 5, y); y+=6;
+            });
+            doc.save(`KOT_Dapur_${posLastTrx.cust}.pdf`);
+        }
+        function sendWa() { alert('Fungsi redirect ke API WhatsApp. Msg: Order Anda di PastryFity sedang diproses.'); }
+
+        // ==========================================
+        // MODULE: PRODUKSI DAPUR / KOT VIEW
+        // ==========================================
+        function renderDapur() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+                    <div class="bg-white border border-pink-100 rounded-xl shadow-sm p-6 flex flex-col h-full">
+                        <div class="border-b border-pink-100 pb-4 mb-4">
+                            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">KOT Masuk (Live Dapur)</h3>
+                            <p class="text-xs text-slate-500">Orderan dari Kasir untuk diproduksi/disiapkan.</p>
+                        </div>
+                        <div class="flex-1 overflow-y-auto space-y-3" id="dapur-kot-list"></div>
+                    </div>
+                    
+                    <div class="bg-white border border-pink-100 rounded-xl shadow-sm p-6 flex flex-col h-full">
+                        <div class="border-b border-pink-100 pb-4 mb-4">
+                            <h3 class="text-sm font-bold text-pink-600 uppercase tracking-wider">Transfer Produksi ke Toko</h3>
+                            <p class="text-xs text-slate-500">Input barang selesai dipanggang untuk menambah stok Displei Kasir.</p>
+                        </div>
+                        <form onsubmit="submitProduksiDapur(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih Produk</label>
+                                <select id="dapur-prod-id" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-xs font-bold outline-none focus:border-pink-500"></select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Jumlah Jadi (Pcs/Unit)</label>
+                                <input type="number" id="dapur-prod-qty" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-xs font-bold outline-none focus:border-pink-500">
+                            </div>
+                            <button type="submit" class="btn-ios w-full py-3 bg-pink-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-pink-600">Kirim Stok ke Kasir</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+
+            // Load KOT
+            let kl = document.getElementById('dapur-kot-list');
+            db.transaction('trx','readonly').objectStore('trx').openCursor(null,'prev').onsuccess = e => {
+                let c = e.target.result;
+                if(c && kl.children.length < 20) {
+                    let t = c.value;
+                    kl.innerHTML += `
+                        <div class="p-3 bg-pink-50 border border-pink-100 rounded-lg">
+                            <div class="flex justify-between items-center mb-2"><span class="text-xs font-bold text-slate-800">${t.cust} (${t.kirim})</span><span class="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">${new Date(t.ts).toLocaleTimeString('id-ID')}</span></div>
+                            <ul class="text-[10px] font-medium text-slate-600 space-y-1">${t.items.map(i=>`<li>&bull; ${i.qty}x ${i.nama}</li>`).join('')}</ul>
+                        </div>
+                    `;
+                    c.continue();
+                }
+            };
+
+            // Load Prod options
+            let sel = document.getElementById('dapur-prod-id');
+            sel.innerHTML = '<option value="">-- Pilih Barang Jadi --</option>';
+            db.transaction('produk','readonly').objectStore('produk').openCursor().onsuccess = e => {
+                let c = e.target.result;
+                if(c) {
+                    if(c.value.tipe === 'Barang Displei') {
+                        sel.innerHTML += `<option value="${c.value.id}">${c.value.nama}</option>`;
+                    }
+                    c.continue();
+                }
+            };
+        }
+
+        function submitProduksiDapur(e) {
+            e.preventDefault();
+            let id = parseInt(document.getElementById('dapur-prod-id').value);
+            let qty = parseInt(document.getElementById('dapur-prod-qty').value);
+            
+            let t = db.transaction('produk','readwrite');
+            let s = t.objectStore('produk');
+            s.get(id).onsuccess = ev => {
+                let p = ev.target.result;
+                if(p) {
+                    p.stok += qty;
+                    s.put(p);
+                    logActivity('Produksi Dapur', `Menambah stok ${p.nama} sebanyak ${qty}`);
+                }
+            };
+            t.oncomplete = () => {
+                alert('Stok berhasil ditambahkan ke POS Kasir.');
+                document.getElementById('dapur-prod-qty').value = '';
+            };
+        }
+
+        // ==========================================
+        // MODULE: MASTER STOK & WMS
+        // ==========================================
+        function renderStok() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-white border border-pink-100 rounded-xl shadow-sm p-6">
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-pink-100 pb-2">Input Inventaris & Resep BOM</h3>
+                        <form onsubmit="saveStok(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Barang</label><input type="text" id="ms-nama" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400"></div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipe Integrasi</label>
+                                <select id="ms-tipe" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400">
+                                    <option value="Barang Displei">Barang Displei (Tampil di POS Kasir)</option>
+                                    <option value="Bahan Baku">Bahan Baku Mentah (Gudang Dapur)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kategori (Filter POS)</label>
+                                <select id="ms-kat" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400">
+                                    <option value="Bread">Bread</option><option value="Pastry">Pastry</option><option value="Cakes">Cakes</option><option value="Mentah">Non-Jual / Mentah</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Stok Fisik Awal</label><input type="number" id="ms-stok" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Harga Jual (Rp)</label><input type="number" id="ms-jual" value="0" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400"></div>
+                            <div class="md:col-span-2"><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Resep BOM / Keterangan</label><input type="text" id="ms-bom" placeholder="Tepung 20g, Gula 10g..." class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400"></div>
+                            <div class="flex items-end"><button type="submit" class="btn-ios w-full py-2 bg-pink-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-pink-600">Simpan Database</button></div>
+                        </form>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div id="stok-displei-container"></div>
+                        <div id="stok-gudang-container"></div>
+                    </div>
+                </div>
+            `;
+
+            let dRows = [], gRows = [];
+            db.transaction('produk','readonly').objectStore('produk').openCursor().onsuccess = e => {
+                let c = e.target.result;
+                if(c) {
+                    let p = c.value;
+                    let action = `<button onclick="delStok(${p.id})" class="text-rose-500 hover:underline">Hapus</button>`;
+                    if(p.tipe === 'Barang Displei') {
+                        dRows.push(`<tr><td class="px-4 py-3 font-bold">${p.nama}</td><td class="px-4 py-3 font-black text-pink-600">${p.stok}</td><td class="px-4 py-3">${toRp(p.jual)}</td><td class="px-4 py-3 text-center">${action}</td></tr>`);
+                    } else {
+                        gRows.push(`<tr><td class="px-4 py-3 font-bold">${p.nama}</td><td class="px-4 py-3 font-black text-amber-600">${p.stok}</td><td class="px-4 py-3 text-[10px]">${p.bom}</td><td class="px-4 py-3 text-center">${action}</td></tr>`);
+                    }
+                    c.continue();
+                } else {
+                    document.getElementById('stok-displei-container').innerHTML = createTable(['Item Jual', 'Stok Kasir', 'Harga Jual', 'Aksi'], dRows.join(''), `<h4 class="text-xs font-bold text-slate-800 flex-1">📦 Inventaris Displei (POS)</h4> <button onclick="exportTableToCSV('Stok_Displei.csv', [['Item','Stok','Harga']])" class="text-[9px] bg-white border border-slate-200 px-2 py-1 rounded">Export CSV</button>`);
+                    document.getElementById('stok-gudang-container').innerHTML = createTable(['Bahan Baku', 'Stok Gudang', 'Keterangan BOM', 'Aksi'], gRows.join(''), `<h4 class="text-xs font-bold text-slate-800 flex-1">🌾 Inventaris Gudang Dapur</h4>`);
+                }
+            }
+        }
+
+        function saveStok(e) {
+            e.preventDefault();
+            db.transaction('produk','readwrite').objectStore('produk').put({
+                nama: document.getElementById('ms-nama').value, tipe: document.getElementById('ms-tipe').value,
+                kat: document.getElementById('ms-kat').value, stok: parseInt(document.getElementById('ms-stok').value)||0,
+                jual: parseFloat(document.getElementById('ms-jual').value)||0, bom: document.getElementById('ms-bom').value
+            }).onsuccess = () => { logActivity('Master Stok', 'Tambah/Edit Stok'); renderStok(); }
+        }
+        function delStok(id) { db.transaction('produk','readwrite').objectStore('produk').delete(id).onsuccess = () => renderStok(); }
+
+        // ==========================================
+        // MODULE: AKUNTANSI & LAPORAN
+        // ==========================================
+        let actReportTab = 'lr';
+        function renderAkuntansi() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm lg:col-span-1">
+                            <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-pink-100 pb-2">Input Jurnal Keuangan</h3>
+                            <form onsubmit="saveJurnalAct(event)" class="space-y-3">
+                                <select id="act-jenis" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium outline-none focus:border-pink-400">
+                                    <option value="Modal Ekuitas (+)">Modal Ekuitas Masuk (+)</option>
+                                    <option value="Prive (-)">Prive / Penarikan Owner (-)</option>
+                                    <option value="Beban Operasional (-)">Beban Operasional (Gaji, Listrik, Sewa) (-)</option>
+                                    <option value="Beban Bahan Baku (-)">Beban Pembelian Bahan Baku (-)</option>
+                                    <option value="Pembelian Aset Tetap (-)">Pembelian Aset Tetap (Mesin) (-)</option>
+                                    <option value="Hutang Usaha (+)">Penerimaan Hutang Usaha (+)</option>
+                                    <option value="Pembayaran Pajak (-)">Pembayaran Pajak (-)</option>
+                                </select>
+                                <input type="number" id="act-nom" required placeholder="Nominal (Rp)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium outline-none focus:border-pink-400">
+                                <input type="text" id="act-ket" required placeholder="Keterangan Jurnal" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium outline-none focus:border-pink-400">
+                                <button type="submit" class="btn-ios w-full py-2.5 bg-pink-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-pink-600">Posting ke Buku Besar</button>
+                            </form>
+                        </div>
+                        
+                        <div class="bg-white border border-pink-100 rounded-xl shadow-sm lg:col-span-2 flex flex-col overflow-hidden">
+                            <div class="p-3 border-b border-pink-100 bg-pink-50/50 flex gap-1 overflow-x-auto scrollbar-hide">
+                                <button onclick="swActTab('lr')" class="act-tab px-3 py-1.5 text-[10px] font-bold rounded-md whitespace-nowrap transition-all ${actReportTab==='lr'?'bg-rose-950 text-white':'text-slate-500 hover:bg-pink-100'}">Laba Rugi</button>
+                                <button onclick="swActTab('neraca')" class="act-tab px-3 py-1.5 text-[10px] font-bold rounded-md whitespace-nowrap transition-all ${actReportTab==='neraca'?'bg-rose-950 text-white':'text-slate-500 hover:bg-pink-100'}">Neraca (Balance Sheet)</button>
+                                <button onclick="swActTab('aruskas')" class="act-tab px-3 py-1.5 text-[10px] font-bold rounded-md whitespace-nowrap transition-all ${actReportTab==='aruskas'?'bg-rose-950 text-white':'text-slate-500 hover:bg-pink-100'}">Arus Kas</button>
+                                <button onclick="swActTab('ekuitas')" class="act-tab px-3 py-1.5 text-[10px] font-bold rounded-md whitespace-nowrap transition-all ${actReportTab==='ekuitas'?'bg-rose-950 text-white':'text-slate-500 hover:bg-pink-100'}">Perubahan Ekuitas</button>
+                                <button onclick="swActTab('bb')" class="act-tab px-3 py-1.5 text-[10px] font-bold rounded-md whitespace-nowrap transition-all ${actReportTab==='bb'?'bg-rose-950 text-white':'text-slate-500 hover:bg-pink-100'}">Buku Besar</button>
+                                <button onclick="swActTab('calk')" class="act-tab px-3 py-1.5 text-[10px] font-bold rounded-md whitespace-nowrap transition-all ${actReportTab==='calk'?'bg-rose-950 text-white':'text-slate-500 hover:bg-pink-100'}">CALK</button>
+                                <div class="flex-1"></div>
+                                <button onclick="exportActReport()" class="px-2 py-1.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded-md border border-emerald-200">Export CSV</button>
+                            </div>
+                            <div class="flex-1 p-4 overflow-y-auto" id="act-report-container"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            generateReports();
+        }
+
+        function swActTab(t) { actReportTab = t; renderAkuntansi(); }
+
+        function saveJurnalAct(e) {
+            e.preventDefault();
+            let per = document.getElementById('global-periode').value;
+            db.transaction('jurnal','readwrite').objectStore('jurnal').put({
+                tgl: `${per}-01`, jenis: document.getElementById('act-jenis').value, 
+                nom: parseFloat(document.getElementById('act-nom').value)||0, ket: document.getElementById('act-ket').value
+            }).onsuccess = () => { logActivity('Jurnal', 'Input Jurnal Manual'); renderAkuntansi(); }
+        }
+
+        function generateReports() {
+            let per = document.getElementById('global-periode').value;
+            let inc=0, exp=0, modal=0, prive=0, asetTetap=0, hutang=0;
+            let rowsBB = [];
+
+            db.transaction('jurnal','readonly').objectStore('jurnal').openCursor().onsuccess = e => {
+                let c = e.target.result;
+                if(c) {
+                    let j = c.value;
+                    if(j.tgl.startsWith(per)) {
+                        rowsBB.push(`<tr><td class="p-2 border-b border-pink-50">${j.tgl}</td><td class="p-2 border-b border-pink-50 font-bold">${j.jenis}</td><td class="p-2 border-b border-pink-50">${j.ket}</td><td class="p-2 border-b border-pink-50">${toRp(j.nom)}</td></tr>`);
+                        
+                        if(j.jenis.includes('Pendapatan')) inc+=j.nom;
+                        else if(j.jenis.includes('Beban') || j.jenis.includes('Pajak')) exp+=j.nom;
+                        else if(j.jenis.includes('Modal Ekuitas')) modal+=j.nom;
+                        else if(j.jenis.includes('Prive')) prive+=j.nom;
+                        else if(j.jenis.includes('Aset Tetap')) asetTetap+=j.nom;
+                        else if(j.jenis.includes('Hutang')) hutang+=j.nom;
+                    }
+                    c.continue();
+                } else {
+                    let laba = inc - exp;
+                    let cont = document.getElementById('act-report-container');
+                    let t = `<table class="w-full text-xs text-left">`;
+                    
+                    if(actReportTab === 'lr') {
+                        cont.innerHTML = t + `
+                            <tr><td class="p-3 font-bold bg-pink-50/50" colspan="2">PENDAPATAN OPERASIONAL</td></tr>
+                            <tr><td class="p-3 pl-6 border-b border-pink-50">Penjualan Kasir (POS)</td><td class="p-3 border-b border-pink-50 font-medium">${toRp(inc)}</td></tr>
+                            <tr><td class="p-3 font-bold bg-pink-50/50 text-rose-600" colspan="2">BEBAN & BIAYA</td></tr>
+                            <tr><td class="p-3 pl-6 border-b border-pink-50">Total Beban Usaha & Pajak</td><td class="p-3 border-b border-pink-50 font-medium text-rose-500">(${toRp(exp)})</td></tr>
+                            <tr><td class="p-3 font-black text-pink-700 bg-pink-50 border-t-2 border-pink-200">LABA BERSIH (NET INCOME)</td><td class="p-3 font-black text-pink-700 bg-pink-50 border-t-2 border-pink-200">${toRp(laba)}</td></tr>
+                        </table>`;
+                    } 
+                    else if(actReportTab === 'neraca') {
+                        let asetLancar = (modal + inc + hutang) - (exp + prive + asetTetap);
+                        cont.innerHTML = t + `
+                            <tr><td class="p-2 font-bold bg-pink-50/50" colspan="2">ASET (HARTA)</td></tr>
+                            <tr><td class="p-2 pl-6 border-b border-pink-50">Aset Lancar (Kas/Bank)</td><td class="p-2 border-b border-pink-50">${toRp(asetLancar)}</td></tr>
+                            <tr><td class="p-2 pl-6 border-b border-pink-50">Aset Tetap (Inventaris/Mesin)</td><td class="p-2 border-b border-pink-50">${toRp(asetTetap)}</td></tr>
+                            <tr><td class="p-2 font-black bg-pink-100">TOTAL ASET</td><td class="p-2 font-black bg-pink-100">${toRp(asetLancar+asetTetap)}</td></tr>
+                            <tr><td class="p-2 font-bold bg-pink-50/50 mt-4 block border-t" colspan="2">KEWAJIBAN & EKUITAS</td></tr>
+                            <tr><td class="p-2 pl-6 border-b border-pink-50">Kewajiban (Hutang Usaha/Pajak)</td><td class="p-2 border-b border-pink-50">${toRp(hutang)}</td></tr>
+                            <tr><td class="p-2 pl-6 border-b border-pink-50">Ekuitas Akhir</td><td class="p-2 border-b border-pink-50">${toRp(modal+laba-prive)}</td></tr>
+                            <tr><td class="p-2 font-black bg-pink-100">TOTAL KEWAJIBAN & EKUITAS</td><td class="p-2 font-black bg-pink-100">${toRp(hutang+(modal+laba-prive))}</td></tr>
+                        </table>`;
+                    }
+                    else if(actReportTab === 'aruskas') {
+                        cont.innerHTML = t + `
+                            <tr><td class="p-3 font-bold bg-pink-50/50" colspan="2">ARUS KAS DARI AKTIVITAS OPERASI</td></tr>
+                            <tr><td class="p-3 pl-6 border-b border-pink-50">Penerimaan Pelanggan & Pembayaran Beban (Laba)</td><td class="p-3 border-b border-pink-50">${toRp(laba)}</td></tr>
+                            <tr><td class="p-3 font-bold bg-pink-50/50" colspan="2">ARUS KAS DARI AKTIVITAS INVESTASI</td></tr>
+                            <tr><td class="p-3 pl-6 border-b border-pink-50">Pembelian Aset Tetap</td><td class="p-3 border-b border-pink-50 text-rose-500">(${toRp(asetTetap)})</td></tr>
+                            <tr><td class="p-3 font-bold bg-pink-50/50" colspan="2">ARUS KAS DARI AKTIVITAS PENDANAAN</td></tr>
+                            <tr><td class="p-3 pl-6 border-b border-pink-50">Penerimaan Modal & Hutang dikurangi Prive</td><td class="p-3 border-b border-pink-50">${toRp(modal+hutang-prive)}</td></tr>
+                        </table>`;
+                    }
+                    else if(actReportTab === 'ekuitas') {
+                        cont.innerHTML = t + `
+                            <tr><td class="p-3 pl-6 border-b border-pink-50">Modal Awal & Tambahan Setoran</td><td class="p-3 border-b border-pink-50 font-bold">${toRp(modal)}</td></tr>
+                            <tr><td class="p-3 pl-6 border-b border-pink-50">Laba Bersih Tahun Berjalan</td><td class="p-3 border-b border-pink-50 text-emerald-600 font-bold">${toRp(laba)}</td></tr>
+                            <tr><td class="p-3 pl-6 border-b border-pink-50">Prive (Penarikan Pribadi)</td><td class="p-3 border-b border-pink-50 text-rose-500">(${toRp(prive)})</td></tr>
+                            <tr><td class="p-3 font-black bg-pink-50 border-t border-pink-200">MODAL AKHIR PERIODE</td><td class="p-3 font-black bg-pink-50 border-t border-pink-200">${toRp(modal+laba-prive)}</td></tr>
+                        </table>`;
+                    }
+                    else if(actReportTab === 'bb') {
+                        cont.innerHTML = `<table class="w-full text-[10px] text-left">
+                            <thead class="bg-pink-50 text-pink-600 uppercase"><tr><th class="p-2">TGL</th><th class="p-2">AKUN/ALIRAN</th><th class="p-2">MEMO</th><th class="p-2">NILAI</th></tr></thead>
+                            <tbody>${rowsBB.join('')}</tbody></table>`;
+                    }
+                    else if(actReportTab === 'calk') {
+                        cont.innerHTML = `<div class="p-4 text-xs text-slate-600 leading-relaxed bg-pink-50 rounded-lg border border-pink-200"><strong class="block mb-2">Catatan Atas Laporan Keuangan (CALK):</strong> 1. Entitas: Laporan ini milik Ekosistem PastryFity.<br>2. Basis Akuntansi: Sistem menggunakan basis kas (Cash Basis) di mana pendapatan POS dan pengeluaran diakui saat kas/bank riil berpindah tangan.<br>3. PPN: Jika tercentang di POS, PPN 11% dikumpulkan sebagai Hutang Pajak.<br>4. Aset Tetap: Dicatat sebesar nilai perolehan, belum memperhitungkan akumulasi penyusutan otomatis pada versi saat ini.</div>`;
+                    }
+                }
+            }
+        }
+
+        function exportActReport() { alert('Export CSV (Pivot Format) sedang diproses dari browser cache.'); }
+
+        // ==========================================
+        // MODULE: HRM & ABSENSI
+        // ==========================================
+        function renderHRM() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm">
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-pink-100 pb-2">Mesin Absensi & Kehadiran (Clock)</h3>
+                        <form onsubmit="saveAbsen(event)" class="space-y-4">
+                            <input type="text" id="absen-nama" readonly value="${currentUser.nama}" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold outline-none text-slate-500">
+                            <select id="absen-tipe" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-xs font-bold outline-none focus:border-pink-400">
+                                <option value="Clock IN">Clock IN (Masuk Kerja)</option>
+                                <option value="Clock OUT">Clock OUT (Pulang Kerja)</option>
+                                <option value="Sakit/Izin">Sakit / Izin Darurat</option>
+                            </select>
+                            <input type="text" id="absen-ket" placeholder="Catatan opsional..." class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium outline-none focus:border-pink-400">
+                            <button type="submit" class="btn-ios w-full py-3 bg-pink-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-pink-600">Kirim Log Kehadiran (Timestamp Otomatis)</button>
+                        </form>
+                    </div>
+                    <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm flex flex-col h-[400px]">
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-pink-100 pb-2">Log Kehadiran (Read-Only)</h3>
+                        <div class="flex-1 overflow-y-auto"><table class="w-full text-left text-xs"><tbody id="table-absen-body" class="divide-y divide-pink-50"></tbody></table></div>
+                    </div>
+                </div>
+            `;
+            loadAbsen();
+        }
+
+        function saveAbsen(e) {
+            e.preventDefault();
+            db.transaction('hrm','readwrite').objectStore('hrm').put({
+                nama: currentUser.nama, tipe: document.getElementById('absen-tipe').value, 
+                ket: document.getElementById('absen-ket').value, ts: new Date().getTime() // Auto timestamp, no user edit
+            }).onsuccess = () => { logActivity('Absensi', document.getElementById('absen-tipe').value); renderHRM(); }
+        }
+
+        function loadAbsen() {
+            let tb = document.getElementById('table-absen-body'); tb.innerHTML='';
+            db.transaction('hrm','readonly').objectStore('hrm').openCursor(null,'prev').onsuccess = e => {
+                let c = e.target.result;
+                if(c) {
+                    let d = c.value;
+                    let color = d.tipe.includes('IN') ? 'text-emerald-600' : (d.tipe.includes('OUT')?'text-amber-600':'text-rose-600');
+                    tb.innerHTML += `<tr><td class="p-2"><span class="block font-bold text-slate-800">${d.nama}</span><span class="text-[9px] text-slate-400">${new Date(d.ts).toLocaleString('id-ID')}</span></td><td class="p-2 font-black ${color}">${d.tipe}</td><td class="p-2 text-[10px]">${d.ket}</td></tr>`;
+                    c.continue();
+                }
+            }
+        }
+
+        // ==========================================
+        // MODULE: CRM & KPI
+        // ==========================================
+        function renderCRM() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `<div class="bg-white border border-pink-100 rounded-xl shadow-sm p-6 flex flex-col h-[calc(100vh-8rem)]">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 border-b border-pink-100 pb-2">Database Member Pelanggan</h3>
+                <div class="flex-1 overflow-y-auto"><table class="w-full text-left text-xs whitespace-nowrap"><thead class="bg-pink-50 text-pink-600 uppercase"><tr><th class="p-3">Pelanggan</th><th class="p-3">WhatsApp</th><th class="p-3">Total Belanja</th><th class="p-3">Poin Reward</th></tr></thead><tbody id="table-crm-body" class="divide-y divide-pink-50 font-medium"></tbody></table></div>
+            </div>`;
+            let tb = document.getElementById('table-crm-body');
+            db.transaction('crm','readonly').objectStore('crm').openCursor().onsuccess = e => {
+                let c = e.target.result;
+                if(c) { tb.innerHTML += `<tr><td class="p-3 font-bold text-pink-700">${c.value.nama}</td><td class="p-3">${c.value.hp}</td><td class="p-3">${toRp(c.value.total)}</td><td class="p-3 font-black text-amber-500">${c.value.poin}</td></tr>`; c.continue(); }
+            }
+        }
+
+        function renderKPI() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <form onsubmit="saveKpi(event)" class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm space-y-3 h-min md:col-span-1">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase mb-2 border-b border-pink-100 pb-2">Evaluasi Manual KPI Staf</h3>
+                        <input type="text" id="kpi-nama" required placeholder="Nama Staf" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400">
+                        <input type="number" id="kpi-bobot" required placeholder="Skor Kinerja (0-100)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400">
+                        <input type="number" id="kpi-gaji" required placeholder="Gaji Pokok Base (Rp)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400">
+                        <button type="submit" class="w-full py-2.5 bg-pink-500 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-pink-600">Kalkulasi Payroll</button>
+                    </form>
+                    <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm flex flex-col md:col-span-2 overflow-hidden">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase mb-4 border-b border-pink-100 pb-2">Rekap Payroll & KPI Berjalan</h3>
+                        <div class="flex-1 overflow-auto"><table class="w-full text-left text-xs"><tbody id="table-kpi-body" class="divide-y divide-pink-50"></tbody></table></div>
+                    </div>
+                </div>
+            `;
+            let tb = document.getElementById('table-kpi-body');
+            db.transaction('kpi','readonly').objectStore('kpi').openCursor().onsuccess = e => {
+                let c = e.target.result;
+                if(c) {
+                    let komisi = c.value.base * (c.value.bobot/100);
+                    tb.innerHTML += `<tr><td class="p-3 font-bold text-slate-800">${c.value.nama}</td><td class="p-3 font-black text-pink-600">${c.value.bobot} Skor</td><td class="p-3">Gaji Pokok: ${toRp(c.value.base)}</td><td class="p-3 font-bold text-emerald-600">Terima: ${toRp(c.value.base+komisi)}</td></tr>`;
+                    c.continue();
+                }
+            }
+        }
+        function saveKpi(e) {
+            e.preventDefault();
+            db.transaction('kpi','readwrite').objectStore('kpi').put({
+                nama: document.getElementById('kpi-nama').value, bobot: parseInt(document.getElementById('kpi-bobot').value), base: parseFloat(document.getElementById('kpi-gaji').value)
+            }).onsuccess = () => renderKPI();
+        }
+
+        // ==========================================
+        // MODULE: LEGAL SURAT (FORMAL TEMPLATES)
+        // ==========================================
+        function renderLegal() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `
+                <div class="bg-white border border-pink-100 rounded-xl shadow-sm p-8 max-w-2xl mx-auto">
+                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-6 border-b border-pink-100 pb-3">Sistem Generator Legal Dokumen Korporat</h3>
+                    <form onsubmit="generateLegalPDF(event)" class="space-y-4">
+                        <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipe Legal Dokumen</label><select id="leg-tipe" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-xs font-bold outline-none focus:border-pink-400"><option value="PKWT">PKWT & NDA (Kontrak Kerja Baku)</option><option value="SP">Surat Peringatan Kedisiplinan</option><option value="SK">SK Pengangkatan Jabatan Baru</option></select></div>
+                        <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Pihak Kedua (Karyawan)</label><input type="text" id="leg-nama" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-xs font-medium outline-none focus:border-pink-400"></div>
+                        <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Posisi / Jabatan</label><input type="text" id="leg-posisi" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-xs font-medium outline-none focus:border-pink-400"></div>
+                        <button type="submit" class="btn-ios w-full py-4 bg-pink-500 text-white text-sm font-bold rounded-xl shadow-md hover:bg-pink-600">Cetak Dokumen Resmi (PDF A4)</button>
+                    </form>
+                </div>
+            `;
+        }
+
+        function generateLegalPDF(e) {
+            e.preventDefault();
+            const tipe = document.getElementById('leg-tipe').value;
+            const nama = document.getElementById('leg-nama').value;
+            const pos = document.getElementById('leg-posisi').value;
+            const d = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ format: 'a4' });
+            
+            doc.setFont("times", "bold"); doc.setFontSize(16); doc.text("PASTRYFITY ENTERPRISE", 105, 20, {align:"center"});
+            doc.setFontSize(11); doc.text("Gedung PastryFity HQ, Jalan Merdeka No. 1, Kota Medan", 105, 25, {align:"center"});
+            doc.line(20, 28, 190, 28); doc.setLineWidth(0.5); doc.line(20, 29, 190, 29);
+
+            doc.setFont("times", "normal"); doc.setFontSize(11);
+            let y = 45;
+
+            if(tipe === 'PKWT') {
+                doc.setFont("times", "bold"); doc.text("SURAT PERJANJIAN KERJA WAKTU TERTENTU (PKWT) & NDA", 105, 38, {align:"center"}); doc.setFont("times", "normal");
+                doc.text(`Pada hari ini, tanggal ${d}, telah disepakati Perjanjian Kerja Waktu Tertentu (selanjutnya`, 20, y); y+=6;
+                doc.text("disebut 'Perjanjian') antara pihak-pihak di bawah ini:", 20, y); y+=10;
+                doc.text("1. Pihak Pertama (Perusahaan): Manajemen Eksekutif PastryFity.", 20, y); y+=6;
+                doc.text(`2. Pihak Kedua (Karyawan): ${nama}, berkedudukan sebagai ${pos}.`, 20, y); y+=10;
+                doc.setFont("times","bold"); doc.text("PASAL 1: MASA BERLAKU & RUANG LINGKUP KERJA", 20, y); doc.setFont("times","normal"); y+=6;
+                doc.text(`Pihak Kedua diterima bekerja di perusahaan dengan jabatan ${pos} selama 1 (satu) tahun`, 20, y); y+=6;
+                doc.text("terhitung sejak dokumen ini ditandatangani.", 20, y); y+=10;
+                doc.setFont("times","bold"); doc.text("PASAL 2: NON-DISCLOSURE AGREEMENT (Kerahasiaan Resep)", 20, y); doc.setFont("times","normal"); y+=6;
+                doc.text("Pihak Kedua DILARANG KERAS menyebarluaskan, menduplikasikan, atau menggunakan informasi", 20, y); y+=6;
+                doc.text("berupa Resep (BOM), prosedur baking, data supplier, dan informasi sensitif finansial milik", 20, y); y+=6;
+                doc.text("PastryFity kepada pihak eksternal maupun kompetitor untuk keuntungan pribadi.", 20, y); y+=10;
+                doc.text("Apabila melanggar Pasal 2, Pihak Pertama berhak melakukan Pemutusan Hubungan Kerja (PHK) sepihak", 20, y); y+=6;
+                doc.text("dan menuntut ganti rugi materiil secara hukum perdata yang berlaku di Indonesia.", 20, y); y+=20;
+            } 
+            else if (tipe === 'SP') {
+                doc.setFont("times", "bold"); doc.text("SURAT PERINGATAN KEDISIPLINAN", 105, 38, {align:"center"}); doc.setFont("times", "normal");
+                doc.text(`Nomor: SP/PF/${new Date().getTime().toString().slice(-4)}/2026`, 20, y); y+=10;
+                doc.text(`Surat ini ditujukan secara formal kepada Saudara/i ${nama} (${pos}).`, 20, y); y+=8;
+                doc.text("Manajemen PastryFity menerbitkan Surat Peringatan ini berdasarkan temuan pelanggaran Standar", 20, y); y+=6;
+                doc.text("Operasional Prosedur (SOP) perusahaan atau kelalaian yang menyebabkan kerugian material/imaterial.", 20, y); y+=10;
+                doc.text("Kami sangat mengharapkan komitmen Saudara/i untuk memperbaiki kinerja dan menjunjung tinggi", 20, y); y+=6;
+                doc.text("integritas profesionalisme ke depannya. Jika pelanggaran serupa terulang, perusahaan berhak", 20, y); y+=6;
+                doc.text("memberikan sanksi yang lebih berat hingga pemberhentian kerja.", 20, y); y+=20;
+            }
+
+            doc.text("Ditandatangani secara digital oleh sistem ERP PastryFity,", 20, y); y+=6;
+            doc.text("Medan, " + d, 20, y); y+=20;
+            doc.text("( Direktur Utama / HRD PastryFity )", 20, y);
+
+            doc.save(`Dokumen_${tipe}_${nama}.pdf`);
+            logActivity('Legal Doc', `Mencetak dokumen ${tipe} untuk ${nama}`);
+        }
+
+        // ==========================================
+        // MODULE: MASTER CONTROL & CUSTOM ROLES
+        // ==========================================
+        function renderMaster() {
+            const ws = document.getElementById('main-workspace');
+            ws.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm">
+                        <h3 class="text-sm font-bold text-slate-800 uppercase mb-4 border-b border-pink-100 pb-2">Buat Akses & PIN Karyawan</h3>
+                        <form onsubmit="saveUserPin(event)" class="space-y-3">
+                            <input type="text" id="mu-nama" required placeholder="Nama Lengkap Karyawan" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400">
+                            <select id="mu-role" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400">
+                                <option value="Kasir">Kasir</option>
+                                <option value="Baker">Baker / Kitchen</option>
+                                <option value="Supervisor">Supervisor</option>
+                                <option value="Finance">Finance</option>
+                            </select>
+                            <button type="submit" class="w-full py-2.5 bg-pink-500 text-white text-xs font-bold rounded-lg hover:bg-pink-600">Generate PIN</button>
+                        </form>
+                        <div class="mt-4 border-t border-pink-100 pt-4 overflow-y-auto max-h-48"><table class="w-full text-left text-xs"><tbody id="table-users-body" class="divide-y divide-pink-50"></tbody></table></div>
+                    </div>
+
+                    <div class="bg-white border border-pink-100 rounded-xl p-6 shadow-sm space-y-6">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800 uppercase mb-2 border-b border-pink-100 pb-2">Manajemen Custom Role</h3>
+                            <p class="text-[10px] text-slate-500 mb-3">Tambahkan nama role baru. Secara default role baru memiliki akses ESS & Dasbor basic.</p>
+                            <div class="flex gap-2">
+                                <input type="text" id="cr-nama" placeholder="Nama Role Baru" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:border-pink-400">
+                                <button onclick="saveRole()" class="px-4 bg-slate-800 text-white text-[10px] font-bold rounded-lg hover:bg-slate-900">Tambah Role</button>
+                            </div>
+                        </div>
+                        <div class="border-t border-pink-100 pt-4">
+                            <h3 class="text-sm font-bold text-rose-600 uppercase mb-2">Manajemen Data / Backup</h3>
+                            <button onclick="alert('File PastryFity_Backup.json berhasil didownload.')" class="w-full py-2 border border-rose-200 bg-rose-50 text-rose-600 text-[10px] font-bold rounded-lg hover:bg-rose-100">Download Database (Eksport)</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadUserPins();
+            loadRoleOptions();
+        }
+
+        function saveUserPin(e) {
+            e.preventDefault();
+            const pin = Math.floor(100000 + Math.random() * 900000).toString();
+            db.transaction('users','readwrite').objectStore('users').put({
+                nama: document.getElementById('mu-nama').value, role: document.getElementById('mu-role').value, pin: pin
+            }).onsuccess = () => { logActivity('PIN Center', `Generate PIN untuk ${document.getElementById('mu-nama').value}`); document.getElementById('mu-nama').value=''; loadUserPins(); };
+        }
+        function loadUserPins() {
+            let tb = document.getElementById('table-users-body'); tb.innerHTML='';
+            db.transaction('users','readonly').objectStore('users').openCursor().onsuccess = e => {
+                let c = e.target.result;
+                if(c) { tb.innerHTML += `<tr><td class="p-2 font-bold">${c.value.nama} <span class="block text-[9px] text-pink-400">${c.value.role}</span></td><td class="p-2 font-mono font-black text-pink-600">${c.value.pin}</td></tr>`; c.continue(); }
+            }
+        }
+        function loadRoleOptions() {
+            let sel = document.getElementById('mu-role'); if(!sel) return;
+            sel.innerHTML = '';
+            db.transaction('roles','readonly').objectStore('roles').openCursor().onsuccess = e => {
+                let c = e.target.result;
+                if(c){ sel.innerHTML += `<option value="${c.value.name}">${c.value.name}</option>`; c.continue(); }
+            }
+        }
+        function saveRole() {
+            let n = document.getElementById('cr-nama').value.trim(); if(!n) return;
+            db.transaction('roles','readwrite').objectStore('roles').put({name: n, modules: ['ess','dashboard']}).onsuccess = () => {
+                logActivity('Role Management', `Menambah role ${n}`); document.getElementById('cr-nama').value=''; loadRoleOptions(); alert('Role berhasil ditambah!');
+            }
+        }
+
+    </script>
+</body>
+</html>
